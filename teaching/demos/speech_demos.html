@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能语音技术 - 课程演示视频</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../assets/css/shuai-home.css">
+    <style>
+        body { background: var(--page); }
+        .container { width: min(100% - 48px, 1180px); margin: 0 auto; padding: 64px 0 80px; }
+        .header { margin-bottom: 30px; }
+        .header h1, .header h2 {
+            margin: 0 0 10px;
+            color: var(--ink);
+            font-family: var(--display);
+            line-height: 1.15;
+        }
+        .header h1 { font-size: clamp(2.5rem, 5vw, 3.7rem); }
+        .header h2 { font-size: clamp(1.8rem, 3vw, 2.35rem) !important; }
+        .header p { margin: 0; color: var(--muted); font-size: 1.02rem !important; }
+        .course-info {
+            margin-bottom: 42px;
+            padding: 24px 28px;
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: var(--radius);
+            color: #fff;
+            background: linear-gradient(150deg, #1b132e, #2c1953 58%, #19122b);
+            box-shadow: var(--shadow);
+        }
+        .course-info h2 { margin: 0 0 6px; color: #fff; font-family: var(--display); font-size: 1.55rem; }
+        .course-info p { margin: 0; color: rgba(255,255,255,.68); }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+        .demo-card {
+            padding: 24px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .demo-card:hover { transform: translateY(-3px); box-shadow: 0 15px 42px rgba(29,22,48,.12); }
+        .demo-card h3 {
+            margin: 0 0 14px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--accent);
+            color: var(--ink);
+            font-family: var(--display);
+            font-size: 1.3rem;
+        }
+        .demo-card p { margin: 0 0 20px; color: var(--muted); line-height: 1.7; }
+        .featured-demo { color: #fff; border-color: transparent; background: linear-gradient(150deg, #2c1953, #5734bc); }
+        .featured-demo h3 { color: #fff; border-color: rgba(255,255,255,.28); }
+        .featured-demo p { color: rgba(255,255,255,.86); }
+        .video-container { position: relative; width: 100%; aspect-ratio: 16 / 9; margin-bottom: 18px; overflow: hidden; border-radius: 10px; background: var(--deep); }
+        .video-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        .video-link, .back-link a {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 18px;
+            border-radius: 999px;
+            color: #fff;
+            font-size: .9rem;
+            font-weight: 700;
+            background: var(--accent);
+        }
+        .video-link:hover, .back-link a:hover { color: #fff; background: var(--accent-hover); }
+        .featured-demo .video-link { border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.12); }
+        .featured-demo .video-link:hover { background: rgba(255,255,255,.2); }
+        .section-divider { height: 1px; margin: 52px 0; background: var(--line); }
+        .module-section { margin-bottom: 56px; }
+        .back-link { margin-top: 28px; text-align: center; }
+        @media (max-width: 720px) {
+            .container { width: min(100% - 32px, 1180px); padding: 44px 0 64px; }
+            .demo-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <nav class="nav-shell" aria-label="Main navigation">
+            <a class="brand" href="../../index.html">SAIL <span>· PRLab @ NJU</span></a>
+            <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><i class="bi bi-list"></i></button>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../../index.html#research">Research</a></li>
+                <li><a href="../../members.html">Members</a></li>
+                <li><a href="../../publications.html">Publications</a></li>
+                <li><a class="active" aria-current="page" href="../index.html">Teaching</a></li>
+                <li><a class="nav-cta" href="../../index.html#openings">Join Us</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 智能语音技术</h1>
+            <p>网络优秀语音技术科普和教学视频搜集</p>
+        </div>
+        
+        <div class="course-info">
+            <h2>Intelligent Speech Technology</h2>
+            <p>Fall 2026 | 南京大学 | 王帅</p>
+        </div>
+        
+        <!-- 特别推荐：李琳山老师 -->
+        <div class="demo-grid" style="margin-bottom: 40px;">
+            <div class="demo-card featured-demo">
+                <h3>🌟 特别推荐：李琳山老师的《信号与人声》</h3>
+                <p>
+                    <strong>李琳山教授</strong>是语音领域的老前辈，这个视频是他精彩人生的思考。人生的路千万条，走好自己的路。强烈推荐每一个学生仔细观看，不仅仅是技术的学习，更是人生道路的指引。
+                </p>
+                <div class="video-container">
+                    <iframe src="https://player.bilibili.com/player.html?bvid=BV1mwuazCEvt&autoplay=0" 
+                            title="李琳山教授：信号与人声" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <a href="https://www.bilibili.com/video/BV1mwuazCEvt" target="_blank" rel="noopener" class="video-link">
+                    📺 在B站中观看
+                </a>
+            </div>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- 精彩在线课程讲解模块 -->
+        <div class="module-section">
+            <div class="header">
+                <h2 style="font-size: 2em; margin-bottom: 20px;">🌟 精彩在线课程讲解</h2>
+                <p style="font-size: 1.1em; opacity: 0.9;">精选网络上优秀的语音技术科普和教学视频</p>
+            </div>
+            
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3>🎯 语音识别技术深度解析</h3>
+                    <p>目前我看到过的最好的语音识别科普视频！。</p>
+                    <div class="video-container">
+                        <iframe src="https://player.bilibili.com/player.html?bvid=BV1Km4y1Q7w7&autoplay=0" 
+                                title="语音识别技术深度解析" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <a href="https://www.bilibili.com/video/BV1Km4y1Q7w7" target="_blank" class="video-link">
+                        📺 在B站中观看
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <div class="module-section">
+            <div class="header">
+                <h2 style="font-size: 2em; margin-bottom: 20px;">📚 课程演示视频</h2>
+                <p style="font-size: 1.1em; opacity: 0.9;">智能语音技术课程相关演示内容</p>
+            </div>
+        
+        <div class="demo-grid">
+            <div class="demo-card">
+                <h3>🗣️ 发音机理</h3>
+                <p>了解人类语音产生的生理机制，包括声带振动、声道调节等关键过程。这个视频将帮助您理解语音信号是如何从我们的发声器官产生的。</p>
+                <div class="video-container">
+                    <iframe src="https://player.bilibili.com/player.html?bvid=BV1qV411A7KW&autoplay=0" 
+                            title="发音机理演示" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <a href="https://www.bilibili.com/video/BV1qV411A7KW/" target="_blank" class="video-link">
+                    📺 在B站中观看
+                </a>
+            </div>
+            
+            <div class="demo-card">
+                <h3>👂 听觉机制</h3>
+                <p>探索人类听觉系统的工作原理，包括声音的接收、传导和感知过程。了解我们是如何听到和理解语音信号的。</p>
+                <div class="video-container">
+                    <iframe src="https://player.bilibili.com/player.html?bvid=BV1Cg4y1z7mn&autoplay=0" 
+                            title="听觉机制演示" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <a href="https://www.bilibili.com/video/BV1Cg4y1z7mn" target="_blank" class="video-link">
+                    📺 在B站中观看
+                </a>
+            </div>
+            
+            <div class="demo-card">
+                <h3>🤖 语音对话系统</h3>
+                <p>李开复博士展示的早期语音对话系统，展示了语音识别和自然语言处理技术的结合应用。这是语音技术发展史上的重要里程碑。</p>
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/PJ_KCTsOCrs" 
+                            title="语音对话系统演示" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <a href="https://www.youtube.com/watch?v=PJ_KCTsOCrs" target="_blank" class="video-link">
+                    📺 在YouTube中观看
+                </a>
+            </div>
+            
+            <div class="demo-card">
+                <h3>🔊 拼接合成示例</h3>
+                <p>展示语音合成中的拼接合成技术，通过拼接预录制的语音片段来生成自然流畅的语音。鬼畜可以看做是某种拼接合成（经过了调音处理）。</p>
+                <div class="video-container">
+                    <iframe src="https://player.bilibili.com/player.html?bvid=BV1bW411n7fY&autoplay=0" 
+                            title="拼接合成示例演示" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <a href="http://bilibili.com/video/BV1bW411n7fY" target="_blank" class="video-link">
+                    📺 在B站中观看
+                </a>
+            </div>
+            
+            <div class="demo-card">
+                <h3>🗣️ Google 语音助手（拼接合成）</h3>
+                <p>展示 Google 早期语音助手使用的拼接合成技术解决方案，通过精心设计的小语音单元拼接来实现自然流畅的语音输出。</p>
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/qnGNfz7JiZ8" 
+                            title="Google 语音助手拼接合成示例" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <a href="https://www.youtube.com/watch?v=qnGNfz7JiZ8" target="_blank" class="video-link">
+                    📺 在YouTube中观看
+                </a>
+            </div>
+            
+            <div class="demo-card">
+                <h3>🎵 歌声合成示例</h3>
+                <p>展示先进的歌声合成技术，通过AI技术实现自然流畅的歌声生成，技术很好，<span style="color: red;">但是理性思考up 主的读博劝退！！！</span></p>
+                <div class="video-container">
+                    <iframe src="https://player.bilibili.com/player.html?bvid=BV15qhmzHEwe&autoplay=0" 
+                            title="歌声合成示例" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <a href="https://www.bilibili.com/video/BV15qhmzHEwe" target="_blank" class="video-link">
+                    📺 在B站中观看
+                </a>
+            </div>
+            
+            <div class="demo-card">
+                <h3>🎤 AI孙燕姿歌声转换</h3>
+                <p>展示AI歌声转换技术的强大能力，通过深度学习技术实现歌手声音的转换和模仿。</p>
+                <div class="video-container">
+                    <iframe src="https://player.bilibili.com/player.html?bvid=BV1io4y1w73k&autoplay=0" 
+                            title="AI孙燕姿歌声转换示例" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <a href="https://www.bilibili.com/video/BV1io4y1w73k" target="_blank" class="video-link">
+                    📺 在B站中观看
+                </a>
+            </div>
+        </div>
+        </div>
+        
+        <div class="back-link">
+            <a href="../ist25fall.html">← 返回 Fall 2026 课程主页</a>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="footer-shell">
+            <div class="footer-grid">
+                <div><h3>SAIL · PRLab</h3><p>Speech and Audio Intelligence Lab</p><p>Sail with Sound. Navigate with Intelligence.</p></div>
+                <div><h3>Explore</h3><a href="../../index.html">Home</a><a href="../../members.html">Members</a><a href="../index.html">Teaching</a></div>
+                <div><h3>Connect</h3><a href="mailto:shuaiwang@nju.edu.cn">Email</a><a href="../../index.html#openings">Join Us</a></div>
+            </div>
+            <div class="footer-bottom">© <span id="year"></span> SAIL · PRLab · Nanjing University</div>
+        </div>
+    </footer>
+    <script>
+        const navButton = document.querySelector('.nav-toggle');
+        const navMenu = document.querySelector('.nav-links');
+        navButton.addEventListener('click', () => {
+            const open = navMenu.classList.toggle('open');
+            navButton.setAttribute('aria-expanded', String(open));
+        });
+        navMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+            navMenu.classList.remove('open');
+            navButton.setAttribute('aria-expanded', 'false');
+        }));
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

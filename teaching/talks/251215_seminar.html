@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南京大学演讲嘉宾介绍 - Future Tech Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../assets/css/shuai-home.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;500;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-gold: #ffd700;
+            --bg-dark: #050505;
+            --panel-bg: rgba(10, 20, 30, 0.7);
+            --grid-color: rgba(0, 243, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-dark);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .talk-page {
+            min-height: calc(100vh - 64px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* 背景网格系统 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(transparent 95%, var(--grid-color) 95%),
+                linear-gradient(90deg, transparent 95%, var(--grid-color) 95%);
+            background-size: 50px 50px;
+            z-index: -2;
+            perspective: 1000px;
+            transform: scale(1.1);
+        }
+
+        /* 扫描线效果 */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1600px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 标题设计 */
+        .header-section {
+            text-align: center;
+            margin-bottom: 80px;
+            position: relative;
+        }
+
+        .main-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            position: relative;
+            display: inline-block;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .main-title::before {
+            content: attr(data-text);
+            position: absolute;
+            left: -2px;
+            text-shadow: 2px 0 var(--neon-blue);
+            top: 0;
+            color: #fff;
+            background: var(--bg-dark);
+            overflow: hidden;
+            clip: rect(0, 900px, 0, 0);
+            animation: noise-anim 3s infinite linear alternate-reverse;
+        }
+
+        .main-title::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 2px;
+            text-shadow: -2px 0 var(--neon-purple);
+            top: 0;
+            color: #fff;
+            background: var(--bg-dark);
+            overflow: hidden;
+            clip: rect(0, 900px, 0, 0);
+            animation: noise-anim-2 2s infinite linear alternate-reverse;
+        }
+
+        .sub-title {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+            margin-top: 10px;
+            letter-spacing: 4px;
+            opacity: 0.8;
+        }
+
+        /* 核心布局 */
+        .grid-system {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* 中心反应堆 */
+        .core-reactor {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .reactor-ring {
+            position: absolute;
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        .r1 { width: 100%; height: 100%; animation: spin 10s linear infinite; border-left: transparent; border-right: transparent; }
+        .r2 { width: 70%; height: 70%; top: 15%; left: 15%; animation: spin-rev 6s linear infinite; border-top: transparent; border-bottom: transparent; border-color: var(--neon-purple); }
+        .r3 { width: 40%; height: 40%; top: 30%; left: 30%; background: radial-gradient(circle, #fff, var(--neon-blue)); opacity: 0.5; animation: pulse 2s ease-in-out infinite; }
+
+        /* 科技卡片设计 */
+        .tech-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding: 30px;
+            transition: all 0.3s ease;
+            /* 切角设计 */
+            clip-path: polygon(
+                20px 0, 100% 0, 
+                100% calc(100% - 20px), calc(100% - 20px) 100%, 
+                0 100%, 0 20px
+            );
+            backdrop-filter: blur(5px);
+        }
+
+        /* 悬停效果 */
+        .tech-card:hover {
+            background: rgba(20, 40, 60, 0.8);
+            transform: translateY(-10px);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+        }
+
+        /* 装饰角落 */
+        .tech-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border-top: 2px solid var(--accent-color);
+            border-left: 2px solid var(--accent-color);
+        }
+
+        .tech-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            border-bottom: 2px solid var(--accent-color);
+            border-right: 2px solid var(--accent-color);
+        }
+
+        /* 主题色定义 */
+        .soul { --accent-color: #ff00ff; }
+        .mobvoi { --accent-color: #00f3ff; }
+        .horizon { --accent-color: #ffa500; }
+
+        /* 卡片头部 */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed rgba(255,255,255,0.2);
+            padding-bottom: 15px;
+        }
+
+        /* 公司Logo区域 */
+        .company-logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 80px;
+        }
+
+        .company-logo {
+            max-height: 60px;
+            max-width: 150px;
+            object-fit: contain;
+        }
+
+        .company-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            filter: brightness(1.2) contrast(1.1);
+            background: rgba(255,255,255,0.05);
+            padding: 2px;
+        }
+
+        .company-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .tech-icon {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* 演讲者信息 */
+        .speaker-info {
+            margin-bottom: 25px;
+        }
+
+        /* 个人简介部分 */
+        .bio-section {
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border: 1px dashed rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .bio-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .bio-text {
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        .name-tag {
+            display: inline-block;
+            background: var(--accent-color);
+            color: #000;
+            padding: 2px 10px;
+            font-weight: bold;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .speaker-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .speaker-title {
+            font-size: 0.9rem;
+            color: #aaa;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 报告内容 */
+        .talk-section {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-left: 3px solid var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .talk-title {
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .talk-desc {
+            font-size: 0.85rem;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        /* 数据标签云 */
+        .data-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .data-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 4px 8px;
+            opacity: 0.8;
+        }
+
+        /* 连接线路 */
+        .circuit-line {
+            position: absolute;
+            background: var(--grid-color);
+            z-index: -1;
+        }
+
+        .line-h { height: 1px; width: 100px; top: 50%; }
+        .line-1 { right: 100%; background: linear-gradient(90deg, transparent, var(--neon-purple)); }
+        .line-2 { left: 100%; background: linear-gradient(-90deg, transparent, var(--neon-gold)); }
+
+        /* 动画定义 */
+        @keyframes noise-anim {
+            0% { clip: rect(20px, 9999px, 80px, 0); transform: translate(2px,0); }
+            100% { clip: rect(60px, 9999px, 10px, 0); transform: translate(-2px,0); }
+        }
+
+        @keyframes noise-anim-2 {
+            0% { clip: rect(80px, 9999px, 20px, 0); transform: translate(-2px,0); }
+            100% { clip: rect(10px, 9999px, 60px, 0); transform: translate(2px,0); }
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spin-rev { 100% { transform: rotate(-360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; scale: 0.8; } 50% { opacity: 0.8; scale: 1.1; } }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .grid-system {
+                grid-template-columns: 1fr;
+                max-width: 600px;
+            }
+            .core-reactor, .circuit-line { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <nav class="nav-shell" aria-label="Main navigation">
+            <a class="brand" href="../../index.html">SAIL <span>· PRLab @ NJU</span></a>
+            <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><i class="bi bi-list"></i></button>
+            <ul class="nav-links">
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../../index.html#research">Research</a></li>
+                <li><a href="../../members.html">Members</a></li>
+                <li><a href="../../publications.html">Publications</a></li>
+                <li><a class="active" aria-current="page" href="../index.html">Teaching</a></li>
+                <li><a class="nav-cta" href="../../index.html#openings">Join Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="talk-page">
+    <div class="container">
+        <header class="header-section">
+            <div class="sub-title">地点：南雍楼西区209 // 时间：2025年12月15日 14:00</div>
+            <h1 class="main-title" data-text="INTELLIGENT SPEECH TECHNOLOGY">INTELLIGENT SPEECH TECHNOLOGY</h1>
+            <div class="sub-title">南京大学 · 智能语音技术课程特邀报告</div>
+        </header>
+
+        <div class="grid-system">
+            <!-- 中心反应堆 (视觉装饰) -->
+            <div class="core-reactor">
+                <div class="reactor-ring r1"></div>
+                <div class="reactor-ring r2"></div>
+                <div class="reactor-ring r3"></div>
+            </div>
+
+            <!-- Soul 卡片 -->
+            <div class="tech-card soul">
+                <div class="circuit-line line-h line-1"></div>
+                <div class="card-header">
+                    <div class="company-logo-section">
+                        <img src="images/soul_logo.png" class="company-logo" alt="Soul Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                        <span class="company-name backup-name" style="display:none;">SOUL</span>
+                        <span class="company-name">SOUL APP</span>
+                    </div>
+                    <div class="tech-icon">👤</div>
+                </div>
+                <div class="speaker-info">
+                    <span class="name-tag">SPEAKER_01</span>
+                    <div class="speaker-name">王新升</div>
+                    <div class="speaker-title">> 西安交通大学博士 · 香港科技大学博士后<br>
+                    >> Soul AI团队多模态交互负责人</div>
+                </div>
+                
+                <div class="bio-section">
+                    <div class="bio-title">PROFILE_DATA:</div>
+                    <div class="bio-text">前米哈游、香港生成式AI研发中心研究员。专注游戏AI与多模态交互，现致力于社交场景语音技术创新。</div>
+                </div>
+                
+                <div class="talk-section">
+                    <div class="talk-title">📢 面向社交场景的智能语音交互探索</div>
+                    <div class="talk-desc">从真人语音通讯到虚拟人情感交互，探索AI语音技术在社交平台的深度应用与体验优化。</div>
+                </div>
+                <div class="data-tags">
+                    <span class="data-tag">#语音识别</span>
+                    <span class="data-tag">#虚拟人交互</span>
+                    <span class="data-tag">#情感理解</span>
+                    <span class="data-tag">#社交创新</span>
+                    <span class="data-tag">#多模态AI</span>
+                </div>
+            </div>
+
+            <!-- 出门问问 卡片 -->
+            <div class="tech-card mobvoi">
+                <div class="card-header">
+                    <div class="company-logo-section">
+                        <img src="images/mobvoi_logo.png" class="company-logo" alt="Mobvoi Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                        <span class="company-name backup-name" style="display:none;">出门问问</span>
+                        <span class="company-name">MOBVOI</span>
+                    </div>
+                    <div class="tech-icon">🎓</div>
+                </div>
+                <div class="speaker-info">
+                    <span class="name-tag">SPEAKER_02</span>
+                    <div class="speaker-name">陈云琳</div>
+                    <div class="speaker-title">> 高级技术总监 | 前微软研究员</div>
+                </div>
+                
+                <div class="bio-section">
+                    <div class="bio-title">PROFILE_DATA:</div>
+                    <div class="bio-text">主导TicVoice 7.0等算法研发，推动产品跃居HuggingFace前二。领导AIGC产品矩阵创新。</div>
+                </div>
+                
+                <div class="talk-section">
+                    <div class="talk-title">📢 听见未来：AI语音赋能教育</div>
+                    <div class="talk-desc">基于多模态技术创新，探索AI语音在教育场景的深度应用与产品实践。</div>
+                </div>
+                <div class="data-tags">
+                    <span class="data-tag">#TicVoice7.0</span>
+                    <span class="data-tag">#魔音工坊</span>
+                    <span class="data-tag">#教育AI</span>
+                    <span class="data-tag">#多模态创新</span>
+                    <span class="data-tag">#AIGC产品</span>
+                </div>
+            </div>
+
+            <!-- 地平线 卡片 -->
+            <div class="tech-card horizon">
+                <div class="circuit-line line-h line-2"></div>
+                <div class="card-header">
+                    <div class="company-logo-section">
+                        <img src="images/horizon_logo.png" class="company-logo" alt="Horizon Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                        <span class="company-name backup-name" style="display:none;">地平线</span>
+                        <span class="company-name">HORIZON</span>
+                    </div>
+                    <div class="tech-icon">🚀</div>
+                </div>
+                <div class="speaker-info">
+                    <span class="name-tag">SPEAKER_03</span>
+                    <div class="speaker-name">张彬彬</div>
+                    <div class="speaker-title">> 西工大硕士 | 语音算法负责人 | WeNet创始人</div>
+                </div>
+                
+                <div class="bio-section">
+                    <div class="bio-title">PROFILE_DATA:</div>
+                    <div class="bio-text">前微软、出门问问语音专家。WeNet开源社区创始人，推动语音技术开源生态建设。</div>
+                </div>
+                
+                <div class="talk-section">
+                    <div class="talk-title">📢 开源和开源语音</div>
+                    <div class="talk-desc">分享开源发展历程，WeNet社区实践，以及语音技术在各行业的落地应用。</div>
+                </div>
+                <div class="data-tags">
+                    <span class="data-tag">#WeNet社区</span>
+                    <span class="data-tag">#开源生态</span>
+                    <span class="data-tag">#行业应用</span>
+                    <span class="data-tag">#算法创新</span>
+                    <span class="data-tag">#语音技术</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    </main>
+
+    <script>
+        const navButton = document.querySelector('.nav-toggle');
+        const navMenu = document.querySelector('.nav-links');
+        navButton.addEventListener('click', () => {
+            const open = navMenu.classList.toggle('open');
+            navButton.setAttribute('aria-expanded', String(open));
+        });
+        navMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+            navMenu.classList.remove('open');
+            navButton.setAttribute('aria-expanded', 'false');
+        }));
+
+        // 简单的随机乱码效果
+        document.querySelectorAll('.data-tag').forEach(tag => {
+            tag.addEventListener('mouseover', () => {
+                let originalText = tag.innerText;
+                let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let interval = setInterval(() => {
+                    tag.innerText = originalText.split('').map((char, index) => {
+                        if(index < 2) return originalText[index];
+                        return characters[Math.floor(Math.random() * 36)];
+                    }).join('');
+                }, 50);
+                
+                setTimeout(() => {
+                    clearInterval(interval);
+                    tag.innerText = originalText;
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

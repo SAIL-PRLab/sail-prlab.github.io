@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>WER 演示 | Levenshtein Distance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/css/bootstrap-icons.min.css">
+<link rel="stylesheet" href="../../assets/css/shuai-home.css">
+<style>
+  .wer-page{
+    --bg: #ffffff;
+    --fg: #1f2937;
+    --muted: #6b7280;
+    --card: #f8fafc;
+    --accent: #2563eb;
+    --ok: #16a34a;
+    --sub: #ef4444;    /* substitution */
+    --del: #f59e0b;    /* deletion */
+    --ins: #8b5cf6;    /* insertion */
+    --grid: #e5e7eb;
+  }
+  @media (prefers-color-scheme: dark){
+    .wer-page{
+      --bg: #0b0f17;
+      --fg: #e5e7eb;
+      --muted: #9aa4b2;
+      --card: #121826;
+      --accent: #60a5fa;
+      --ok: #22c55e;
+      --sub: #f87171;
+      --del: #fbbf24;
+      --ins: #a78bfa;
+      --grid: #1f2937;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, "Helvetica Neue", Arial, "PingFang SC","Noto Sans CJK SC","Microsoft YaHei", sans-serif;
+  }
+  .wer-page{
+    min-height: calc(100vh - 64px);
+    background: var(--bg); color: var(--fg);
+  }
+  .wer-header{
+    padding: 18px 16px 8px;
+    border-bottom: 1px solid var(--grid);
+    background: linear-gradient(180deg, rgba(37,99,235,0.08), transparent);
+  }
+  h1{font-size: 22px; margin: 0 0 6px; letter-spacing: .3px;}
+  .sub{color: var(--muted); font-size: 13px}
+  .wer-container{max-width: 1000px; margin: 0 auto; padding: 16px}
+  .wer-grid{
+    display: grid; gap: 14px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 900px){
+    .wer-grid{grid-template-columns: 1fr 1fr;}
+  }
+  .wer-card{
+    background: var(--card);
+    border: 1px solid var(--grid);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  label{display:block; font-weight:600; margin-bottom:8px}
+  textarea{
+    width:100%; min-height: 110px; resize: vertical;
+    border: 1px solid var(--grid); border-radius: 10px; padding: 10px 12px;
+    background: var(--bg); color: var(--fg); outline: none;
+  }
+  textarea:focus{border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent)}
+  .row{display:flex; gap:10px; flex-wrap: wrap; align-items:center; justify-content: space-between;}
+  .btn{
+    appearance:none; border:0; border-radius: 10px; padding: 10px 14px; font-weight:600; cursor:pointer;
+    background: var(--accent); color: white;
+  }
+  .btn.secondary{background: transparent; color: var(--accent); border: 1px solid var(--accent)}
+  .stats{
+    display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; margin-top:10px
+  }
+  .stat{
+    background: var(--bg); border: 1px dashed var(--grid); border-radius: 10px; padding: 10px; text-align:center
+  }
+  .stat .val{font-size: 22px; font-weight:800}
+  .legend{display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin:8px 0}
+  .badge{
+    display:inline-flex; align-items:center; gap:6px; padding:5px 8px; border-radius: 999px; font-size: 12px; border:1px solid var(--grid); background: var(--bg)
+  }
+  .dot{width:10px; height:10px; border-radius:50%}
+  .dot.sub{background: var(--sub)}
+  .dot.del{background: var(--del)}
+  .dot.ins{background: var(--ins)}
+  .dot.ok{background: var(--ok)}
+  .output{
+    background: var(--bg); border:1px solid var(--grid); border-radius: 12px; padding: 12px; overflow:auto
+  }
+  .seq{display:flex; flex-wrap:wrap; gap:6px; line-height: 1.9}
+  .tok{
+    padding: 4px 8px; border-radius: 8px; border:1px solid var(--grid); background: color-mix(in srgb, var(--ok) 8%, transparent)
+  }
+  .tok.ok{border-color: color-mix(in srgb, var(--ok) 60%, var(--grid)); background: color-mix(in srgb, var(--ok) 15%, transparent)}
+  .tok.sub{border-color: color-mix(in srgb, var(--sub) 60%, var(--grid)); background: color-mix(in srgb, var(--sub) 15%, transparent)}
+  .tok.del{border-color: color-mix(in srgb, var(--del) 60%, var(--grid)); background: color-mix(in srgb, var(--del) 15%, transparent)}
+  .tok.ins{border-color: color-mix(in srgb, var(--ins) 60%, var(--grid)); background: color-mix(in srgb, var(--ins) 15%, transparent)}
+  .tok small{color: var(--muted); font-size: 11px; margin-left:6px}
+  .align-grid{
+    display:grid; gap:6px; grid-template-columns: 1fr 1fr 120px;
+    margin-top: 10px;
+  }
+  .align-grid > div{
+    background: var(--bg); border:1px solid var(--grid); border-radius: 8px; padding: 8px
+  }
+  .align-head{font-weight:700; text-align:center}
+  .footnote{color: var(--muted); font-size: 12px; margin-top: 8px}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "JetBrains Mono", Consolas, "Liberation Mono","Courier New", monospace;}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav-shell" aria-label="Main navigation">
+    <a class="brand" href="../../index.html">SAIL <span>· PRLab @ NJU</span></a>
+    <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><i class="bi bi-list"></i></button>
+    <ul class="nav-links">
+      <li><a href="../../index.html">Home</a></li>
+      <li><a href="../../index.html#research">Research</a></li>
+      <li><a href="../../members.html">Members</a></li>
+      <li><a href="../../publications.html">Publications</a></li>
+      <li><a class="active" aria-current="page" href="../index.html">Teaching</a></li>
+      <li><a class="nav-cta" href="../../index.html#openings">Join Us</a></li>
+    </ul>
+  </nav>
+</header>
+<div class="wer-page">
+<header class="wer-header">
+  <h1>词错误率（WER）演示</h1>
+  <div class="sub">基于 Levenshtein Distance：WER = (S + D + I) / N</div>
+</header>
+
+<div class="wer-container">
+  <div class="wer-grid">
+    <div class="wer-card">
+      <label for="ref">参考文本（Reference）</label>
+      <textarea id="ref" placeholder="例如：the quick brown fox jumps over the lazy dog"></textarea>
+      <div class="footnote">提示：自动小写、去标点、按空白分词；支持中英文。</div>
+    </div>
+
+    <div class="wer-card">
+      <label for="hyp">识别文本（Hypothesis）</label>
+      <textarea id="hyp" placeholder="例如：the quick brown fox jump over the lazy dog"></textarea>
+      <div class="row" style="margin-top:10px">
+        <div class="legend">
+          <span class="badge"><span class="dot ok"></span>正确</span>
+          <span class="badge"><span class="dot sub"></span>替换 S</span>
+          <span class="badge"><span class="dot del"></span>删除 D</span>
+          <span class="badge"><span class="dot ins"></span>插入 I</span>
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn" id="run">计算 WER</button>
+        <button class="btn secondary" id="demo">填充示例</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wer-card">
+    <div class="row">
+      <h3 style="margin:0">结果</h3>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="val mono" id="nRef">0</div>
+        <div class="sub">参考词数 N</div>
+      </div>
+      <div class="stat">
+        <div class="val mono" id="sdi">0 / 0 / 0</div>
+        <div class="sub">S / D / I</div>
+      </div>
+      <div class="stat">
+        <div class="val mono" id="acc">0%</div>
+        <div class="sub">正确率 = 1 - WER</div>
+      </div>
+      <div class="stat">
+        <div class="val mono" id="wer">0%</div>
+        <div class="sub">WER</div>
+      </div>
+    </div>
+
+    <div class="output" style="margin-top:12px">
+      <div class="align-grid">
+        <div class="align-head">Reference</div>
+        <div class="align-head">Hypothesis</div>
+        <div class="align-head">操作</div>
+        <div id="refSeq" class="seq"></div>
+        <div id="hypSeq" class="seq"></div>
+        <div id="opsSeq" class="seq mono"></div>
+      </div>
+      <div class="footnote">
+        说明：对齐基于编辑距离最优路径。操作含义——S: 替换，D: 删除（ref 中的词被删），I: 插入（hyp 多出的词），OK: 匹配。
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+  // 简单文本预处理：小写、去常见标点、Unicode 空白归一化
+  function normalizeText(t){
+    if(!t) return "";
+    t = t.toLowerCase();
+    // 将中文逗号等也去掉
+    t = t.replace(/[.,!?;:"'`~“”‘’、，。？！；：…()\[\]{}<>《》／\/\\-]/g, " ");
+    t = t.replace(/\s+/g, " ").trim();
+    return t;
+  }
+
+  function tokenize(t){
+    if(!t) return [];
+    // 按空白分词；中文可先在中英文之间加空白以粗略分词
+    // 这里做一个非常轻量的中文切词：把连续的汉字视为一个词
+    // 更严谨可接第三方分词，但课堂演示足够
+    // 先将中文与英文数字之间插空格
+    t = t.replace(/([\u4e00-\u9fff])([a-z0-9]+)/gi, "$1 $2");
+    t = t.replace(/([a-z0-9]+)([\u4e00-\u9fff])/gi, "$1 $2");
+    // 再按空白切
+    return t.split(" ").filter(Boolean);
+  }
+
+  // 计算 Levenshtein 并返回对齐路径与 S/D/I/OK 统计
+  function alignWER(refTokens, hypTokens){
+    const n = refTokens.length, m = hypTokens.length;
+    // dp[i][j] = {cost, op} op: 'OK','S','D','I'
+    const dp = Array.from({length: n+1}, () => Array(m+1).fill(0).map(()=>({cost:0,op:null})));
+    for(let i=1;i<=n;i++) dp[i][0] = {cost:i, op:'D'};
+    for(let j=1;j<=m;j++) dp[0][j] = {cost:j, op:'I'};
+    for(let i=1;i<=n;i++){
+      for(let j=1;j<=m;j++){
+        const match = refTokens[i-1] === hypTokens[j-1];
+        const subCost = dp[i-1][j-1].cost + (match?0:1);
+        const delCost = dp[i-1][j].cost + 1;
+        const insCost = dp[i][j-1].cost + 1;
+        let cost = subCost, op = match ? 'OK' : 'S';
+        if(delCost < cost){cost = delCost; op='D'}
+        if(insCost < cost){cost = insCost; op='I'}
+        dp[i][j] = {cost, op};
+      }
+    }
+    // 回溯
+    let i=n, j=m;
+    const refAligned=[], hypAligned=[], ops=[];
+    let S=0,D=0,I=0,OK=0;
+    while(i>0 || j>0){
+      const cell = dp[i][j];
+      let op = cell.op;
+      if(i>0 && j>0 && (op==='OK' || op==='S')){
+        refAligned.push(refTokens[i-1]);
+        hypAligned.push(hypTokens[j-1]);
+        ops.push(op);
+        if(op==='OK') OK++; else S++;
+        i--; j--;
+      }else if(i>0 && (j===0 || op==='D')){
+        refAligned.push(refTokens[i-1]);
+        hypAligned.push('∅');
+        ops.push('D'); D++; i--;
+      }else{
+        refAligned.push('∅');
+        hypAligned.push(hypTokens[j-1]);
+        ops.push('I'); I++; j--;
+      }
+    }
+    refAligned.reverse(); hypAligned.reverse(); ops.reverse();
+    return {refAligned, hypAligned, ops, counts:{S,D,I,OK}, distance: dp[n][m].cost};
+  }
+
+  function renderTokens(container, tokens, ops){
+    container.innerHTML = '';
+    tokens.forEach((tok, idx)=>{
+      const span = document.createElement('span');
+      const cls = ops[idx]==='OK'?'ok':ops[idx]==='S'?'sub':ops[idx]==='D'?'del':'ins';
+      span.className = 'tok '+cls;
+      span.textContent = tok;
+      const small = document.createElement('small');
+      small.textContent = ops[idx];
+      span.appendChild(small);
+      container.appendChild(span);
+    });
+  }
+
+  function compute(){
+    const refRaw = document.getElementById('ref').value;
+    const hypRaw = document.getElementById('hyp').value;
+    const ref = tokenize(normalizeText(refRaw));
+    const hyp = tokenize(normalizeText(hypRaw));
+    const {refAligned, hypAligned, ops, counts, distance} = alignWER(ref, hyp);
+    const N = ref.length || 1; // 避免除零
+    const WER = distance / N;
+    const ACC = Math.max(0, 1 - WER);
+
+    // 渲染统计
+    document.getElementById('nRef').textContent = ref.length.toString();
+    document.getElementById('sdi').textContent = `${counts.S} / ${counts.D} / ${counts.I}`;
+    document.getElementById('wer').textContent = (WER*100).toFixed(1) + '%';
+    document.getElementById('acc').textContent = (ACC*100).toFixed(1) + '%';
+
+    // 渲染对齐
+    renderTokens(document.getElementById('refSeq'), refAligned, ops);
+    renderTokens(document.getElementById('hypSeq'), hypAligned, ops);
+    // 操作列
+    const opsSeq = document.getElementById('opsSeq');
+    opsSeq.innerHTML = '';
+    ops.forEach(o=>{
+      const span = document.createElement('span');
+      span.className = 'tok ' + (o==='OK'?'ok':o==='S'?'sub':o==='D'?'del':'ins');
+      span.textContent = o;
+      opsSeq.appendChild(span);
+    });
+  }
+
+  document.getElementById('run').addEventListener('click', compute);
+  document.getElementById('demo').addEventListener('click', ()=>{
+    const examples = [
+      ["the quick brown fox jumps over the lazy dog",
+       "the quick brown fox jump over a lazy dog"],
+      ["今天 的 天气 真 不错 我们 去 公园 散步 吧",
+       "今天 天气 不错 我们 去 公园 散步 吧"],
+      ["speech recognition is challenging under noisy and accented conditions",
+       "speech recognition is challenge under noise and accented condition"]
+    ];
+    const [r,h] = examples[Math.floor(Math.random()*examples.length)];
+    document.getElementById('ref').value = r;
+    document.getElementById('hyp').value = h;
+    compute();
+  });
+
+  // 初始一个示例
+  document.getElementById('demo').click();
+
+  const navButton = document.querySelector('.nav-toggle');
+  const navMenu = document.querySelector('.nav-links');
+  navButton.addEventListener('click', () => {
+    const open = navMenu.classList.toggle('open');
+    navButton.setAttribute('aria-expanded', String(open));
+  });
+  navMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+    navMenu.classList.remove('open');
+    navButton.setAttribute('aria-expanded', 'false');
+  }));
+</script>
+</body>
+</html>

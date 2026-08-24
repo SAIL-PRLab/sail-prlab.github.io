@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intelligent Speech Technology - Fall 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../assets/css/shuai-home.css">
+  <style>
+    .course-page {
+      --bg: #f5f3fa;
+      --surface: #ffffff;
+      --text: #443c57;
+      --muted: #746d84;
+      --primary: #6d48d7;
+      --primary-soft: #f0ecff;
+      --border: #e8e4ef;
+      --success: #116149;
+      --warning-bg: #fff6e5;
+      --warning-border: #f2cc81;
+      --shadow: 0 10px 35px rgba(29, 22, 48, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f3fa;
+      color: #443c57;
+      font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 20px 56px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .course-hero {
+      background: linear-gradient(150deg, #1b132e 0%, #2c1953 55%, #19122b 100%);
+      color: #f6f9ff;
+      border-radius: 16px;
+      padding: 36px 34px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .course-hero h1 {
+      margin: 0;
+      font-family: "Lora", Georgia, serif;
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.18;
+      letter-spacing: 0.2px;
+    }
+
+    .course-hero p {
+      margin: 14px 0 0;
+      max-width: 760px;
+      color: rgba(255, 255, 255, 0.68);
+      font-size: 16px;
+    }
+
+    .hero-meta {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      display: inline-block;
+      border-radius: 100px;
+      padding: 7px 12px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      font-size: 13px;
+      font-weight: 600;
+      color: #eef4ff;
+    }
+
+    .quicknav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+
+    .quicknav a {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .quicknav a:hover {
+      background: var(--primary-soft);
+      text-decoration: none;
+    }
+
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .course-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+
+    .course-card h2 {
+      margin: 0 0 12px;
+      color: var(--primary);
+      font-family: "Lora", Georgia, serif;
+      font-size: 24px;
+      line-height: 1.3;
+    }
+
+    .course-card h3 {
+      margin: 16px 0 8px;
+      color: var(--primary);
+      font-family: "Lora", Georgia, serif;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .two-cols {
+      grid-column: span 12;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .fact {
+      background: #fbfafe;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+    }
+
+    .fact .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .fact .value {
+      color: var(--text);
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    ul.clean {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    ul.clean li {
+      margin: 8px 0;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 880px;
+      background: #fff;
+    }
+
+    thead th {
+      background: var(--primary-soft);
+      color: #1d1630;
+      text-align: left;
+      font-size: 13px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody td {
+      padding: 12px;
+      border-bottom: 1px solid #eeeaf3;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    tbody tr:hover {
+      background: #fbfafe;
+    }
+
+    .holiday {
+      background: var(--warning-bg);
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .badge.link {
+      background: var(--primary-soft);
+      border-color: #d9cff8;
+      color: var(--primary);
+    }
+
+    .badge.notice {
+      background: #e9f8f1;
+      border-color: #bfe7d5;
+      color: var(--success);
+    }
+
+    .badge.offline {
+      background: #f4f5f7;
+      border-color: #dde1e7;
+      color: #4b5563;
+    }
+
+    .assessment {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: #fbfafe;
+    }
+
+    .metric .num {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.05;
+      margin-bottom: 5px;
+    }
+
+    .course-muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .assignment {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+      background: #fbfafe;
+    }
+
+    .assignment-title {
+      margin: 0 0 8px;
+      font-size: 17px;
+      color: var(--primary);
+      font-family: "Lora", Georgia, serif;
+    }
+
+    .policy {
+      border-left: 4px solid #bba9ef;
+      padding: 10px 12px;
+      background: var(--primary-soft);
+      border-radius: 8px;
+    }
+
+    footer {
+      margin-top: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .site-header a:hover {
+      text-decoration: none;
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        padding: 18px 12px 42px;
+      }
+
+      .course-hero {
+        padding: 24px 20px;
+      }
+
+      .course-card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav-shell" aria-label="Main navigation">
+      <a class="brand" href="../index.html">SAIL <span>· PRLab @ NJU</span></a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><i class="bi bi-list"></i></button>
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#research">Research</a></li>
+        <li><a href="../members.html">Members</a></li>
+        <li><a href="../publications.html">Publications</a></li>
+        <li><a class="active" aria-current="page" href="./index.html">Teaching</a></li>
+        <li><a class="nav-cta" href="../index.html#openings">Join Us</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="wrap course-page">
+    <div class="topbar">
+      <span>Nanjing University · School of Intelligence Science and Technology</span>
+      <a href="./index.html"><i class="bi bi-arrow-left"></i> All courses</a>
+    </div>
+
+    <header class="course-hero">
+      <h1>Intelligent Speech Technology</h1>
+      <p>
+        This course introduces core theory and modern practice in speech technology,
+        from signal processing and ASR to speaker modeling, speech synthesis,
+        audio and music processing, responsible AI, and speech agents.
+      </p>
+      <div class="hero-meta">
+        <span class="chip">Fall 2026</span>
+        <span class="chip">2 Credits</span>
+        <span class="chip">18 Weeks · 36 Contact Hours</span>
+        <span class="chip">Fri 2:00 - 3:50 PM</span>
+      </div>
+    </header>
+
+    <nav class="quicknav" aria-label="Course sections">
+      <a href="#overview">Overview</a>
+      <a href="#objectives">Learning Objectives</a>
+      <a href="#prerequisites">Prerequisites</a>
+      <a href="#schedule">Schedule</a>
+      <a href="#materials">Materials</a>
+      <a href="#assessment">Assessment</a>
+      <a href="#assignments">Assignments</a>
+      <a href="#policies">Policies</a>
+    </nav>
+
+    <section id="overview" class="course-card">
+      <h2>Course Overview</h2>
+      <div class="course-grid">
+        <div class="two-cols">
+          <div class="fact">
+            <span class="label">Instructor</span>
+            <div class="value"><a href="../members.html#group-lead">Shuai Wang</a></div>
+          </div>
+          <div class="fact">
+            <span class="label">Location</span>
+            <div class="value">Nanyong Building, Room West 209</div>
+          </div>
+          <div class="fact">
+            <span class="label">Meeting Time</span>
+            <div class="value">Friday, 2:00 - 3:50 PM</div>
+          </div>
+          <div class="fact">
+            <span class="label">Teaching Format</span>
+            <div class="value">Lectures + demos + project-oriented practice</div>
+          </div>
+        </div>
+      </div>
+      <p>
+        As one of the most natural forms of human communication, speech is central to
+        the next generation of AI systems. This course provides a structured path from
+        fundamentals to state-of-the-art, covering both classical and neural approaches.
+        We discuss practical design choices used in modern systems and how to critically
+        read and implement research ideas.
+      </p>
+    </section>
+
+    <section id="objectives" class="course-card">
+      <h2>Learning Objectives</h2>
+      <ul class="clean">
+        <li>Build a clear understanding of speech signal processing foundations.</li>
+        <li>Master core methods in ASR, speaker modeling, synthesis, voice conversion, and separation.</li>
+        <li>Apply machine learning and deep learning methods to speech tasks.</li>
+        <li>Develop and evaluate practical speech technology pipelines.</li>
+        <li>Read, analyze, and present recent research papers in the field.</li>
+        <li>Understand audio and music processing, responsible AI, and large-model-based speech systems.</li>
+      </ul>
+    </section>
+
+    <section id="prerequisites" class="course-card">
+      <h2>Prerequisites</h2>
+      <ul class="clean">
+        <li>Basic linear algebra and calculus.</li>
+        <li>Programming experience in Python.</li>
+        <li>Introductory machine learning knowledge.</li>
+        <li>Basic deep learning familiarity (PyTorch or TensorFlow).</li>
+      </ul>
+    </section>
+
+    <section id="schedule" class="course-card">
+      <h2>Weekly Schedule</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Date</th>
+              <th>Topic</th>
+              <th>Materials</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1</strong></td>
+              <td>2026.8.28</td>
+              <td>Course Introduction & Overview of Speech Technology</td>
+              <td>
+                <a class="badge link" href="./demos/speech_demos.html">Demos</a>
+              </td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td>2026.9.4</td>
+              <td>Foundations of Speech Signal Processing</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td>2026.9.11</td>
+              <td>Foundations of Automatic Speech Recognition</td>
+              <td><a class="badge link" href="./demos/wer.html">WER Demo</a></td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>4</strong></td>
+              <td>2026.9.18</td>
+              <td>Advanced Automatic Speech Recognition</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>5</strong></td>
+              <td>2026.9.25</td>
+              <td>Speaker Modeling</td>
+              <td>-</td>
+              <td><span class="badge notice">Assignment 1 Released</span></td>
+            </tr>
+            <tr class="holiday">
+              <td><strong>6</strong></td>
+              <td>2026.10.2</td>
+              <td>National Holiday</td>
+              <td>-</td>
+              <td>No class meeting</td>
+            </tr>
+            <tr>
+              <td><strong>7</strong></td>
+              <td>2026.10.9</td>
+              <td>Foundations of Speech Synthesis</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>8</strong></td>
+              <td>2026.10.16</td>
+              <td>Advanced Speech Synthesis</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>9</strong></td>
+              <td>2026.10.23</td>
+              <td>Voice Conversion</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>10</strong></td>
+              <td>2026.10.30</td>
+              <td>Speech Separation</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>11</strong></td>
+              <td>2026.11.6</td>
+              <td>Self-Supervised Learning for Speech</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>12</strong></td>
+              <td>2026.11.13</td>
+              <td>Speech Processing with Large Language Models</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>13</strong></td>
+              <td>2026.11.20</td>
+              <td>Audio and Music Processing</td>
+              <td>-</td>
+              <td><span class="badge notice">Assignment 2 Released</span></td>
+            </tr>
+            <tr>
+              <td><strong>14</strong></td>
+              <td>2026.11.27</td>
+              <td>Responsible Speech AI: Safety, Ethics, and Health</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>15</strong></td>
+              <td>2026.12.4</td>
+              <td>Speech Agents and Full-Duplex Dialogue Systems</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>16</strong></td>
+              <td>2026.12.11</td>
+              <td>Applications of Speech Processing in Industry</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>17</strong></td>
+              <td>2026.12.18</td>
+              <td>Course Review &amp; Project Clinic</td>
+              <td>-</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td><strong>18</strong></td>
+              <td>2026.12.25</td>
+              <td>Final Project Presentation</td>
+              <td>-</td>
+              <td>Last class</td>
+            </tr>
+            <tr>
+              <td><strong>20</strong></td>
+              <td>2027.1.8</td>
+              <td>-</td>
+              <td>-</td>
+              <td><span class="badge notice">Final Project Due</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="materials" class="course-card">
+      <h2>Course Materials</h2>
+
+      <h3>Recommended Textbooks</h3>
+      <ul class="clean">
+        <li>Jurafsky D, Martin J H. <em>Speech and Language Processing</em>, 2025 edition.</li>
+        <li><a href="https://speechprocessingbook.aalto.fi/index.html">Aalto Speech Processing Book</a>.</li>
+        <li>Huang X, Acero A, Hon H-W. <em>Spoken Language Processing</em>, Prentice Hall, 2011.</li>
+        <li>韩纪庆、张磊、郑铁然，《语音信号处理》，清华大学出版社。</li>
+        <li>洪青阳、李琳，《语音识别：原理与应用》，电子工业出版社。</li>
+      </ul>
+
+      <h3>Recommended Reading</h3>
+      <p class="course-muted">Recent papers from top conferences and journals: ICASSP, Interspeech, ACL, T-ASLP, and related venues.</p>
+
+      <h3>Software & Tooling</h3>
+      <ul class="clean">
+        <li><strong>Python 3.8+</strong> for assignments and projects.</li>
+        <li><strong>PyTorch / TensorFlow</strong> for deep learning experiments.</li>
+        <li><strong>Librosa</strong> for audio and feature-level processing.</li>
+        <li><strong>WeNet / WeSpeaker / WeSep</strong> and related open-source speech toolkits.</li>
+        <li><strong>ESPNet / SpeechBrain / Kaldi</strong> for broader ecosystem exposure.</li>
+      </ul>
+    </section>
+
+    <section id="assessment" class="course-card">
+      <h2>Assessment</h2>
+      <div class="assessment">
+        <div class="metric">
+          <div class="num">15%</div>
+          <div><strong>Attendance</strong></div>
+          <div class="course-muted">Tracked from Week 4 to Week 18</div>
+        </div>
+        <div class="metric">
+          <div class="num">20%</div>
+          <div><strong>Homework</strong></div>
+          <div class="course-muted">Two assignments</div>
+        </div>
+        <div class="metric">
+          <div class="num">65%</div>
+          <div><strong>Final Project</strong></div>
+          <div class="course-muted">One term project and presentation</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="assignments" class="course-card">
+      <h2>Assignments & Deliverables</h2>
+
+      <article class="assignment">
+        <h3 class="assignment-title">Homework 1</h3>
+        <p><strong>Release:</strong> Week 5 &nbsp;|&nbsp; <strong>Due:</strong> Week 8</p>
+        <p class="course-muted">Details and submission format will be announced in class and on the course page.</p>
+      </article>
+
+      <article class="assignment">
+        <h3 class="assignment-title">Homework 2</h3>
+        <p><strong>Release:</strong> Week 13 &nbsp;|&nbsp; <strong>Due:</strong> To be announced</p>
+        <p class="course-muted">This assignment focuses on advanced topics covered in the second half of the course.</p>
+      </article>
+
+      <article class="assignment">
+        <h3 class="assignment-title">Final Project</h3>
+        <p><strong>Presentation:</strong> Week 18 &nbsp;|&nbsp; <strong>Final Submission:</strong> Week 20 (2027.1.8)</p>
+        <p class="course-muted">Students are expected to propose, implement, and evaluate a speech-related project with a clear technical report.</p>
+      </article>
+    </section>
+
+    <section id="policies" class="course-card">
+      <h2>Course Policies</h2>
+      <p class="policy">
+        The syllabus and schedule are subject to refinement as the semester progresses.
+        Any updates to lectures, deadlines, or materials will be announced in advance.
+      </p>
+    </section>
+
+    <footer>
+      Intelligent Speech Technology · Fall 2026 · Nanjing University
+    </footer>
+  </main>
+  <script>
+    const navButton = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-links');
+    navButton.addEventListener('click', () => {
+      const open = navMenu.classList.toggle('open');
+      navButton.setAttribute('aria-expanded', String(open));
+    });
+    navMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      navMenu.classList.remove('open');
+      navButton.setAttribute('aria-expanded', 'false');
+    }));
+  </script>
+</body>
+</html>

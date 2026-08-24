@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teaching | SAIL · PRLab</title>
+  <meta name="description" content="Courses taught by SAIL at Nanjing University.">
+  <link rel="icon" href="../images/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../assets/css/shuai-home.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav-shell" aria-label="Main navigation">
+      <a class="brand" href="../index.html">SAIL <span>· PRLab @ NJU</span></a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><i class="bi bi-list"></i></button>
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../index.html#research">Research</a></li>
+        <li><a href="../members.html">Members</a></li>
+        <li><a href="../publications.html">Publications</a></li>
+        <li><a class="active" aria-current="page" href="./index.html">Teaching</a></li>
+        <li><a class="nav-cta" href="../index.html#openings">Join Us</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="section-shell">
+        <div class="eyebrow"><i class="bi bi-mortarboard-fill"></i> Nanjing University</div>
+        <h1>Teaching</h1>
+        <p>Course pages provide schedules, demonstrations, assignments, and other learning resources.</p>
+      </div>
+    </section>
+
+    <section class="section white">
+      <div class="section-shell">
+        <div class="section-head">
+          <h2 class="section-title">Course Archive</h2>
+          <p class="section-kicker">Select a course and semester to view its syllabus and materials.</p>
+        </div>
+        <div class="course-list">
+          <article class="course-entry">
+            <div class="course-term">Fall 2026</div>
+            <div>
+              <h2>Intelligent Speech Technology</h2>
+              <p>Updated offering covering speech signal processing, recognition, speaker modeling, generation, separation, and speech-language models.</p>
+              <div class="course-meta">Upcoming · 2 credits · 18 weeks · School of Intelligence Science and Technology</div>
+            </div>
+            <a class="primary-btn" href="./ist25fall.html">View course <i class="bi bi-arrow-right"></i></a>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-shell">
+      <div class="footer-grid">
+        <div><h3>SAIL · PRLab</h3><p>Speech and Audio Intelligence Lab</p><p>Sail with Sound. Navigate with Intelligence.</p></div>
+        <div><h3>Explore</h3><a href="../index.html">Home</a><a href="../members.html">Members</a><a href="../publications.html">Publications &amp; Projects</a></div>
+        <div><h3>Connect</h3><a href="mailto:shuaiwang@nju.edu.cn">Email</a><a href="https://scholar.google.com/citations?user=vW1ZaucAAAAJ" target="_blank" rel="noopener">Google Scholar</a><a href="../index.html#openings">Join Us</a></div>
+      </div>
+      <div class="footer-bottom">© <span id="year"></span> SAIL · PRLab · Nanjing University</div>
+    </div>
+  </footer>
+
+  <script>
+    const button = document.querySelector('.nav-toggle');
+    const menu = document.querySelector('.nav-links');
+    button.addEventListener('click', () => {
+      const open = menu.classList.toggle('open');
+      button.setAttribute('aria-expanded', String(open));
+    });
+    menu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      menu.classList.remove('open');
+      button.setAttribute('aria-expanded', 'false');
+    }));
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
