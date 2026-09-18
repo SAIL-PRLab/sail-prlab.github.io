@@ -124,6 +124,72 @@
       text-decoration: none;
     }
 
+    .demos-spotlight {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+      padding: 22px 24px;
+      border-radius: 16px;
+      border: 1px solid rgba(109, 72, 215, 0.22);
+      background: linear-gradient(135deg, #f7f3ff 0%, #ffffff 55%, #f3f8ff 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .demos-spotlight h2 {
+      margin: 0 0 8px;
+      color: var(--primary);
+      font-family: "Lora", Georgia, serif;
+      font-size: 24px;
+      line-height: 1.3;
+    }
+
+    .demos-spotlight p {
+      margin: 0;
+      max-width: 640px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .demos-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .demos-actions a {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .demos-actions a.primary {
+      color: #fff;
+      background: var(--primary);
+    }
+
+    .demos-actions a.primary:hover {
+      background: #5b37c0;
+      text-decoration: none;
+    }
+
+    .demos-actions a.secondary {
+      color: var(--primary);
+      background: #fff;
+      border: 1px solid #d9cff8;
+    }
+
+    .demos-actions a.secondary:hover {
+      background: var(--primary-soft);
+      text-decoration: none;
+    }
+
     .course-grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
@@ -375,6 +441,7 @@
     </header>
 
     <nav class="quicknav" aria-label="Course sections">
+      <a href="#demos">Demos</a>
       <a href="#overview">Overview</a>
       <a href="#objectives">Learning Objectives</a>
       <a href="#prerequisites">Prerequisites</a>
@@ -384,6 +451,21 @@
       <a href="#assignments">Assignments</a>
       <a href="#policies">Policies</a>
     </nav>
+
+    <section id="demos" class="demos-spotlight" aria-label="Course demos">
+      <div>
+        <h2>Demos &amp; Video Gallery</h2>
+        <p>
+          A curated set of demos and short videos for this course, organized by topic
+          (speech fundamentals, ASR, dialogue, TTS, singing &amp; music). Use it throughout the semester.
+        </p>
+      </div>
+      <div class="demos-actions">
+        <a class="primary" href="./demos/speech_demos.html">Open Demo Gallery</a>
+        <a class="secondary" href="./demos/speech_demos.html#asr">ASR Section</a>
+        <a class="secondary" href="./demos/wer.html">WER Demo</a>
+      </div>
+    </section>
 
     <section id="overview" class="course-card">
       <h2>Course Overview</h2>
@@ -458,7 +540,6 @@
               <td>Course Introduction &amp; Overview of Speech Technology</td>
               <td>
                 <a class="badge link" href="./ist26fall/slides/01-02.pdf">Slides</a>
-                <a class="badge link" href="./demos/speech_demos.html">Demos</a>
               </td>
               <td>-</td>
             </tr>
@@ -486,6 +567,7 @@
               <td>2026.9.18</td>
               <td>Foundations of Automatic Speech Recognition</td>
               <td>
+                <a class="badge link" href="./demos/speech_demos.html#asr">ASR Videos</a>
                 <a class="badge link" href="./demos/wer.html">WER Demo</a>
               </td>
               <td>-</td>
@@ -602,6 +684,12 @@
 
     <section id="materials" class="course-card">
       <h2>Course Materials</h2>
+
+      <h3>Demos &amp; Interactive Tools</h3>
+      <ul class="clean">
+        <li><a href="./demos/speech_demos.html">Demo &amp; Video Gallery</a> — topic-grouped videos for fundamentals, ASR, dialogue, TTS, and singing.</li>
+        <li><a href="./demos/wer.html">WER Demo</a> — interactive Word Error Rate calculator for ASR evaluation.</li>
+      </ul>
 
       <h3>Recommended Textbooks</h3>
       <ul class="clean">
