@@ -267,11 +267,15 @@ img { max-width: 100%; }
 .tag { display: inline-block; padding: 4px 10px; border-radius: 999px; color: var(--accent); background: var(--accent-subtle); font-size: .78rem; font-weight: 700; }
 
 .news-list { border-top: 1px solid var(--line); }
-.news-item { display: grid; grid-template-columns: 86px 34px 1fr; gap: 15px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.news-item { display: grid; grid-template-columns: 96px 34px 1fr; gap: 15px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--line); }
 .news-date { color: var(--muted); font-size: .84rem; font-weight: 700; }
 .news-icon { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: var(--accent); background: var(--accent-subtle); }
 .news-content { color: var(--body); }
 .news-content strong { color: var(--ink); }
+.news-archive summary { padding: 18px 0; color: var(--accent); font-weight: 700; cursor: pointer; }
+.news-archive summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.news-archive-label { margin-left: 8px; color: var(--muted); font-size: .84rem; font-weight: 400; }
+.news-archive[open] summary { border-bottom: 1px solid var(--line); }
 
 .openings-intro { max-width: 940px; }
 .recruit-media {
@@ -474,7 +478,7 @@ img { max-width: 100%; }
   .card-icon { margin: 0; }
   .recruit-banner, .scholar-callout { align-items: flex-start; flex-direction: column; }
   .service-row { grid-template-columns: 1fr; gap: 3px; }
-  .news-item { grid-template-columns: 72px 30px 1fr; gap: 9px; }
+  .news-item { grid-template-columns: 86px 30px 1fr; gap: 9px; }
   .mentorship-manifesto { padding: 20px 18px 20px 50px; }
   .mentorship-manifesto > i { left: 19px; }
 }
