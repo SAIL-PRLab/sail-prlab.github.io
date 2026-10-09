@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>把对齐藏起来 · CTC 原理实验室</title><meta name="description" content="亲手理解 CTC：逐帧概率、blank 与重复折叠、对齐路径求和、前向递推、损失与贪心解码。"><style>:root{--paper:#f6f5ef;--white:#fffefa;--ink:#243b31;--green:#315c4b;--muted:#738075;--line:#dce1d5;--orange:#c56c43;--gold:#b09a56;--blank:#939b91;--open:#477862;--light:#c56c43}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65}button,input,select{font:inherit;color:inherit}button{cursor:pointer}button,a,select,input,summary{-webkit-tap-highlight-color:transparent}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[role=button]:focus-visible{outline:3px solid var(--orange);outline-offset:3px}button:disabled{opacity:.4;cursor:default}button{transition:background .15s}button:hover:not(:disabled){filter:brightness(.96)}[hidden]{display:none!important}a{color:inherit}.site-header{max-width:1440px;margin:auto;padding:24px 46px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:12px;font-size:20px;letter-spacing:.03em;text-decoration:none;font-weight:700}.brand-mark{width:35px;height:35px;border-radius:9px;background:var(--green);color:var(--white);display:grid;place-items:center;font-size:24px}.brand small{font-size:10px;letter-spacing:.16em;color:var(--muted);margin-left:6px}.site-header>div{display:flex;align-items:center;gap:24px}.previous-lab{font-size:12px;color:var(--muted);text-decoration:none}.quiet{border:0;background:none;padding:10px 0;font-size:12px;white-space:nowrap}.button{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:7px;padding:10px 16px;font-size:12px;font-weight:600;white-space:nowrap;border:1px solid var(--line)}.dark{color:var(--white);background:var(--ink);border-color:var(--ink)}.outline{background:transparent}.icon-button{width:33px;height:34px;border:1px solid var(--line);background:var(--white);border-radius:6px;font-size:22px;line-height:1}main{max-width:1370px;margin:auto;padding:0 44px}.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:70px;align-items:center;padding:52px 0 43px}.eyebrow,.small-label{font-size:10px;letter-spacing:.11em;color:var(--muted);font-weight:600}.eyebrow:before{content:'●';color:var(--orange);margin-right:10px}.hero h1{font-size:49px;line-height:1.35;letter-spacing:-.035em;margin:18px 0 20px;font-weight:700}.hero h1 span{background:linear-gradient(transparent 69%,#d4e2d4 0);padding-bottom:2px}.hero p{font-size:14px;color:var(--muted);line-height:1.9}.hero-chips{display:flex;gap:12px;align-items:center;font-size:11px;margin-top:24px}.hero-chips span{border:1px solid var(--line);border-radius:30px;padding:5px 13px}.hero-chips i{font-style:normal;color:var(--muted)}.hero-art{border:1px solid #d6dfce;border-radius:20px;background:radial-gradient(#c5d5c555 1px,transparent 1px),linear-gradient(140deg,#edf1e5,#f6f5ef);background-size:15px 15px,100% 100%;padding:29px 30px;transform:rotate(-1deg)}.hero-art .small-label{display:block;margin-bottom:24px}.mini-path{display:flex;gap:9px;justify-content:center;margin:12px 0}.hero-answer{display:flex;justify-content:center;align-items:center;gap:30px;margin:20px 0 12px;color:var(--muted)}.hero-answer strong{font-size:35px;color:var(--ink)}.hero-art p{font-size:11px;text-align:center;margin-bottom:0}.token{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;min-width:34px;height:38px;padding:0 8px;border:1px solid var(--line);border-radius:7px;font-size:17px;font-weight:600}.token.blank{color:#7e897c;background:#eef0e8;border-color:#d4dbce}.token.open{color:var(--green);background:#e5eee2;border-color:#c9d8c3}.token.light{color:#a45c39;background:#f7e9d8;border-color:#e8d3b9}.token.active{outline:2px solid var(--orange);outline-offset:2px}.token.future{opacity:.24}.token-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.lab{border:1px solid var(--line);border-radius:14px;background:var(--white);overflow:hidden}.setup{display:flex;align-items:center;gap:22px;padding:23px 27px;flex-wrap:wrap}.setup label{display:flex;flex-direction:column;font-size:10px;color:var(--muted);gap:6px}.setup select{font-size:13px;padding:7px 25px 7px 10px;border-radius:5px;background:#fcfcf6;border:1px solid var(--line);color:var(--ink);max-width:100%}.time-setup{display:flex;align-items:center;gap:10px;font-size:12px}.time-setup span{color:var(--muted);font-size:11px;margin-right:2px}.setup>.quiet{margin-left:auto}.scope-note{margin:0;padding:10px 27px 14px;font-size:11px;color:var(--muted);border-top:1px dashed var(--line);background:#f7f8f2}.stage-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.stage-button{display:flex;gap:12px;align-items:center;text-align:left;background:#f9faf4;border:none;border-right:1px solid var(--line);padding:20px 17px;position:relative}.stage-button:last-child{border-right:0}.stage-button>span{font-size:21px;font-weight:600;color:#a5b0a2;font-style:italic}.stage-button b{font-size:13px;font-weight:600;line-height:1.5}.stage-button small{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:5px}.stage-button.active{background:#e1e8db}.stage-button.active:after{content:'';position:absolute;height:3px;background:var(--green);bottom:0;left:0;right:0}.stage-button.active>span{color:var(--green)}.playhead{display:flex;align-items:center;gap:9px;padding:16px 27px;border-bottom:1px solid var(--line);background:#fcfdf7}.scrubber{flex:1;font-size:11px;margin:0 10px;min-width:100px}.scrubber input{display:block;width:100%;margin-top:7px;accent-color:var(--green);cursor:pointer}.live-target{font-size:11px;white-space:nowrap;color:var(--muted);margin-left:10px}.live-target b{color:var(--ink);font-size:14px;margin-left:5px}.stage-panel{padding:31px 28px}.section-intro{display:flex;align-items:center;justify-content:space-between;gap:25px;margin-bottom:26px}.section-intro h2{font-size:24px;line-height:1.5;letter-spacing:-.03em;margin:6px 0 0}.section-intro>p{text-align:right;font-size:12px;color:var(--muted);line-height:1.9;margin:0}.encoder-flow{display:flex;align-items:center;justify-content:center;gap:19px;background:#f3f5ee;border-radius:9px;padding:18px;font-size:12px;margin-bottom:26px}.encoder-flow span,.encoder-flow strong{text-align:center}.encoder-flow small{font-size:9px;color:var(--muted)}.encoder-flow i{color:var(--muted);font-style:normal}.plot-title{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;margin:0 0 15px}.plot-title>span{color:var(--muted);font-size:10px}.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin:0 3px 0 7px}.dot.blank{background:var(--blank)}.dot.open{background:var(--open)}.dot.light{background:var(--light)}.prob-grid{display:grid;grid-template-columns:72px repeat(var(--steps),minmax(0,1fr));gap:8px}.prob-axis{font-size:11px;color:var(--muted);padding:9px 4px;display:flex;align-items:center;justify-content:center}.prob-axis:first-child{justify-content:flex-start}.prob-cell{border:1px solid var(--line);border-radius:7px;min-height:56px;background:var(--white);position:relative;font-variant-numeric:tabular-nums;font-size:16px}.prob-cell.selected{outline:2px solid var(--orange);outline-offset:1px}.prob-cell.winner:after{content:'•';position:absolute;right:7px;top:0;font-size:14px}.prob-axis.current{font-weight:700;color:var(--orange)}.prob-total{font-size:10px;color:var(--muted);text-align:center;padding-top:3px}.editor-box{display:grid;grid-template-columns:1.5fr 1fr;gap:40px;background:#f3f5ee;border-radius:9px;margin-top:23px;padding:18px 22px;align-items:center}.editor-box h3{font-size:17px;margin:5px 0}.editor-box p,.prob-control small{font-size:11px;color:var(--muted);margin:0}.prob-control label{display:flex;justify-content:space-between;font-size:12px}.prob-control label strong{font-size:20px;font-variant-numeric:tabular-nums}.prob-control input{width:100%;accent-color:var(--green);margin:10px 0}.insight{display:flex;gap:16px;align-items:flex-start;background:#edf2e8;border-radius:7px;margin-top:26px;padding:17px 20px;font-size:12px}.insight>span{font-size:26px;line-height:1.1;color:var(--green)}.insight b{font-size:13px}.insight p{font-size:11px;color:var(--muted);margin:5px 0 0;line-height:1.9}.section-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:15px 0 24px}.section-toolbar>span{font-size:11px;color:var(--muted);margin-left:auto}.collapse-workbench{border:1px solid var(--line);border-radius:10px;overflow:hidden}.collapse-row{padding:23px;display:grid;grid-template-columns:170px 1fr;align-items:center;gap:15px}.row-label b{font-size:13px}.row-label small{display:block;font-size:10px;color:var(--muted)}.collapse-arrow{font-size:11px;padding:9px 23px 9px 207px;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);color:var(--muted);background:#f7f8f2}.final-row{background:#edf2e8}.final-row .token{font-size:23px;height:44px;min-width:42px}.empty-text{font-size:13px;color:var(--muted)}.collapse-status{margin-top:17px;padding:12px 16px;border-left:3px solid var(--green);font-size:12px;background:#f6f8f1}.collapse-status.mismatch{border-color:var(--orange)}.tiny-comparison{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:25px 10px 0}.tiny-comparison>div{border-right:1px solid var(--line)}.tiny-comparison>div:last-child{border:0}.tiny-comparison p{font-size:17px;margin:7px 0 0}.tiny-comparison i{font-style:normal;color:var(--muted);padding:0 10px}.metrics{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:18px;margin:0 0 24px}.metrics>div{border:1px solid var(--line);border-radius:9px;padding:19px 22px;display:flex;flex-direction:column}.metrics span{font-size:11px;color:var(--muted)}.metrics strong{font-size:36px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:6px 0}.metrics small{font-size:10px;color:var(--muted)}.metrics .metric-featured{background:#edf2e8;border-color:#c6d7bf}.math-strip{display:flex;gap:25px;justify-content:space-around;flex-wrap:wrap;padding:20px;background:#f6f7f1;border-radius:8px;font-size:16px;margin-bottom:25px;font-family:Georgia,"Times New Roman",serif}.math-strip sub{font-size:10px}.path-list{display:flex;flex-direction:column;gap:7px}.path-button{display:grid;grid-template-columns:25px 1fr 170px;align-items:center;gap:14px;padding:9px 13px;border:1px solid var(--line);border-radius:7px;background:var(--white);text-align:left}.path-button.selected{border-color:var(--green);background:#f0f4e9}.path-index{font-size:10px;color:var(--muted)}.path-button .token{min-width:27px;height:29px;font-size:12px;border-radius:5px}.path-button .token-row{gap:6px}.path-prob{font-size:13px;display:flex;align-items:center;gap:10px;justify-content:flex-end;font-variant-numeric:tabular-nums}.path-bar{display:block;width:70px;height:5px;background:#e4e9de;border-radius:3px}.path-bar i{display:block;height:5px;background:var(--green);border-radius:3px}.path-detail{font-size:12px;padding:17px 20px;border-radius:8px;border:1px solid var(--line);background:#f7f8f2;margin-top:18px;overflow-wrap:anywhere}.path-detail p{font-size:11px;color:var(--muted);margin:7px 0}.path-detail .token-row{margin:10px 0}.path-empty{padding:25px;text-align:center;font-size:12px;color:var(--muted);background:#faf3e9;border:1px solid #e8d7c3;border-radius:9px}.target-track{display:flex;align-items:center;gap:18px;font-size:12px;border-bottom:1px solid var(--line);padding:0 0 19px}.target-track .token{min-width:31px;height:34px;font-size:15px}.legend{font-size:10px;color:var(--muted);display:flex;justify-content:space-between;gap:20px;padding:14px 0}.lattice-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:#fcfdf7;padding:8px}.lattice-scroll svg{display:block;width:100%;min-width:570px}.lattice-cell{cursor:pointer}.lattice-cell text{pointer-events:none}.dp-detail{display:grid;grid-template-columns:1.1fr 1fr;gap:25px;border-top:1px solid var(--line);margin-top:23px;padding:22px 0}.dp-detail h3{font-size:16px;margin:7px 0}.dp-detail p{font-size:11px;color:var(--muted);line-height:1.8}.formula{font-family:Georgia,"Times New Roman",serif;font-size:15px}.formula sub{font-size:9px}.calculation{font-size:11px}.calc-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #e9ede3;font-variant-numeric:tabular-nums}.calc-row:last-child{border:0}.calc-row strong{text-align:right}.calc-row.total{color:var(--green);border-top:1px solid var(--line);font-weight:600}.calc-row.blocked{color:var(--orange)}.end-sum{font-size:12px;padding:14px 18px;background:#edf2e8;border-left:3px solid var(--green)}.training-box{display:grid;grid-template-columns:1.05fr 1fr;gap:35px;padding:23px;background:#f3f5ee;border-radius:10px}.loss-formula{font-size:22px;font-family:Georgia,"Times New Roman",serif;margin-top:12px}.loss-value{font-size:48px;letter-spacing:-.04em;font-weight:600;margin-top:8px;line-height:1.25;font-variant-numeric:tabular-nums}.training-main>p{font-size:12px;color:var(--muted)}.training-main .training-scope{font-size:10px;line-height:1.9}.training-main .section-toolbar{margin-bottom:15px}.training-chart{min-width:0}.training-chart>svg{width:100%;height:auto;border:1px solid var(--line);border-radius:7px;background:var(--white)}.gradient-detail{font-size:10px;color:var(--muted);margin-top:15px}.gradient-detail .calc-row{font-size:11px}.decode-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:32px}.decode-heading h3{font-size:19px}.decode-comparison{display:grid;grid-template-columns:1fr 1fr;gap:25px;border:1px solid var(--line);border-radius:9px;padding:23px}.decode-comparison>div:first-child{border-right:1px solid var(--line);padding-right:20px}.decode-comparison .token-row{margin:16px 0}.decode-comparison .token{min-width:29px;height:34px;font-size:14px}.decode-comparison h3{font-size:30px;margin:10px 0}.decode-comparison p{font-size:12px;color:var(--muted);margin:9px 0}.text-ranking{margin-top:20px}.rank-row{display:grid;grid-template-columns:70px 1fr 74px;gap:15px;align-items:center;font-size:12px;margin:10px 0}.rank-track{height:8px;border-radius:5px;background:#edf1e7;overflow:hidden}.rank-track i{display:block;height:100%;background:var(--green)}.rank-row>strong{text-align:right;font-variant-numeric:tabular-nums}.plot-explain{font-size:10px;color:var(--muted);line-height:1.9}.workspace-footer{padding:18px 28px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:15px}.workspace-footer>span{font-size:11px;color:var(--muted)}.warning{background:#fff2df;border-bottom:1px solid #ecd4b4;padding:13px 28px;font-size:12px;color:#956132}.challenges{padding-top:42px}.challenges .section-intro{margin-bottom:20px}.challenge-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}.challenge{display:block;text-align:left;padding:21px;border:1px solid var(--line);border-radius:9px;background:#f9faf4}.challenge b{display:block;font-size:15px;margin:12px 0 9px}.challenge p{font-size:11px;color:var(--muted);margin:0;line-height:1.9}.teacher-notes{display:grid;grid-template-columns:1fr 2fr;gap:55px;padding:44px 0 25px;border-top:1px solid var(--line);margin-top:38px}.teacher-notes h2{font-size:26px;line-height:1.5;margin:10px 0}.teacher-notes ol{margin:0;padding-left:23px}.teacher-notes li{padding:0 0 13px 7px;font-size:12px;color:var(--muted)}.teacher-notes li b{color:var(--ink);font-weight:600}.method-note{font-size:11px;color:var(--muted);margin-bottom:30px}.method-note summary{cursor:pointer;border-top:1px solid var(--line);padding:16px 0}.method-note>div{padding:3px 15px 15px;line-height:1.9}.site-footer{max-width:1440px;margin:auto;border-top:1px solid var(--line);padding:21px 46px;display:flex;justify-content:space-between;gap:20px;font-size:10px;color:var(--muted)}.presenting .hero,.presenting .challenges,.presenting .teacher-notes,.presenting .method-note,.presenting .site-footer{display:none}.presenting .site-header{padding-top:10px;padding-bottom:10px}.presenting main{padding-top:16px}.presenting .stage-panel{padding-top:22px}
+.mode-bar{padding:21px 27px 14px;display:flex;justify-content:space-between;align-items:center;gap:25px;border-bottom:1px solid var(--line);background:#f4f7ee}.mode-bar h3{font-size:17px;margin:5px 0 0;line-height:1.6}.mode-switch{display:flex;gap:5px;padding:4px;background:#e6ecdf;border-radius:8px;flex-shrink:0}.mode-switch button{border:0;border-radius:5px;background:transparent;padding:10px 13px;font-size:12px;white-space:nowrap}.mode-switch button[aria-pressed=true]{background:var(--green);color:var(--white)}.role-cards{display:grid;grid-template-columns:.85fr 1.3fr 1fr;gap:15px;padding:22px 27px 10px}.role-cards>div{padding:16px 18px;border:1px solid var(--line);border-radius:8px;min-width:0}.role-cards>div:first-child{background:#f6f3e8}.role-cards>div:last-child{background:#edf3e7}.role-cards strong{display:block;font-size:28px;line-height:1.4;margin:10px 0 6px;font-variant-numeric:tabular-nums}.role-cards p{font-size:10px;color:var(--muted);line-height:1.8;margin:7px 0 0}.role-path{display:flex;gap:5px;flex-wrap:wrap;margin-top:14px}.role-path .token{font-size:14px;height:32px;min-width:29px;padding:0 5px}.mode-explain{font-size:11px;line-height:1.9;color:var(--muted);padding:9px 27px 17px;margin:0}.change-note{margin:0;padding:12px 27px;background:#edf2e8;border-top:1px solid var(--line);font-size:11px;color:var(--green);line-height:1.9}.play-meaning{margin:0;padding:10px 27px 12px;background:#f5f7ef;font-size:11px;color:var(--muted);border-bottom:1px solid var(--line)}.frame-focus{display:grid;grid-template-columns:1fr 1fr;gap:35px;padding:20px 23px;border:1px solid #cbd9c2;border-radius:10px;background:#f4f7ee;margin-bottom:24px}.frame-bar{display:grid;grid-template-columns:53px 1fr 42px;gap:12px;align-items:center;font-size:11px;margin:11px 0}.frame-bar-track{height:13px;background:#e4eadd;border-radius:3px;overflow:hidden}.frame-bar-track i{display:block;height:100%;transition:width .25s}.frame-bar strong{text-align:right;font-variant-numeric:tabular-nums}.live-prefix{font-size:31px;font-weight:600;margin:8px 0}.frame-focus p{font-size:11px;color:var(--muted);line-height:1.8;margin:0}.accumulator{display:grid;grid-template-columns:1.15fr 1fr;align-items:center;gap:25px;padding:18px 22px;background:#edf3e7;border:1px solid #cbd9c2;border-radius:9px;margin-bottom:24px}.accumulator h3{font-size:17px;margin:9px 0 12px}.sum-progress{height:7px;background:#dce6d4;border-radius:5px;overflow:hidden}.sum-progress i{display:block;height:100%;background:var(--green);transition:width .2s}.accumulator>div:last-child{display:flex;flex-direction:column}.accumulator>div>span:not(.small-label){font-size:11px;color:var(--muted)}.accumulator strong{font-size:28px;font-variant-numeric:tabular-nums;margin:3px 0}.accumulator small{font-size:10px;line-height:1.8;color:var(--muted)}.path-button.accumulated .path-index{color:var(--green);font-weight:600}.path-index{min-width:27px}.training-changes{padding:22px;margin-top:18px;border:1px solid var(--line);border-radius:9px;background:#fbfcf6}.before-after-row{display:grid;grid-template-columns:62px repeat(var(--steps),minmax(0,1fr));gap:10px;align-items:center;margin:12px 0;font-size:11px}.time-column{background:transparent;border:1px solid var(--line);padding:6px 0;border-radius:5px;font-size:11px}.time-column.active{border-color:var(--orange);color:var(--orange)}.stack-bar{height:23px;display:flex;border-radius:4px;overflow:hidden}.stack-bar i{display:block;height:100%;transition:width .25s}.training-changes>p{font-size:11px;color:var(--muted);margin:15px 0 0}.training-changes .calculation{margin-top:18px}
+@media(max-width:1050px){.mode-bar{align-items:flex-start;flex-direction:column;gap:12px}.role-cards{grid-template-columns:1fr 1.2fr 1fr;gap:10px}.role-cards>div{padding:13px}.role-cards .small-label{font-size:9px}.role-cards strong{font-size:24px}}
+@media(max-width:760px){.mode-bar{padding:17px;gap:13px}.mode-bar h3{font-size:14px}.mode-bar .small-label{font-size:9px}.mode-switch{width:100%}.mode-switch button{font-size:11px;flex:1;padding:9px 8px}.role-cards{grid-template-columns:1fr;gap:9px;padding:15px 17px 6px}.role-cards>div{padding:12px 15px}.role-cards strong{font-size:23px;margin:6px 0}.role-path{margin-top:9px}.role-cards p{font-size:10px;margin-top:4px}.mode-explain{font-size:10px;padding:8px 17px 13px}.change-note{font-size:10px;padding:10px 17px}.play-meaning{font-size:10px;padding:10px 17px}.frame-focus{grid-template-columns:1fr;gap:15px;padding:16px}.frame-bar{font-size:10px;gap:9px;margin:9px 0}.live-prefix{font-size:26px;margin:6px 0}.frame-focus p{font-size:10px}.accumulator{grid-template-columns:1fr;gap:15px;padding:16px}.accumulator h3{font-size:15px}.accumulator strong{font-size:25px}.training-changes{padding:15px}.before-after-row{grid-template-columns:45px repeat(var(--steps),minmax(0,1fr));gap:5px;font-size:9px}.time-column{font-size:9px;padding:5px 0}.stack-bar{height:20px}.training-changes>p{font-size:10px}.training-changes .calc-row{font-size:10px}}
+@media(min-width:1650px){main{max-width:1500px}.hero h1{font-size:60px}.stage-button b{font-size:15px}}
+@media(max-width:1150px){main{padding:0 28px}.site-header{padding:20px 28px}.hero{gap:28px}.hero h1{font-size:42px}.hero-art{padding:23px 20px}.stage-button{padding:17px 10px;gap:7px}.stage-button b{font-size:11px}.stage-button small{font-size:9px}.stage-button>span{font-size:17px}.setup{gap:17px}.training-box{gap:24px}.path-button{grid-template-columns:22px 1fr 120px}.path-bar{width:40px}.prob-grid{grid-template-columns:55px repeat(var(--steps),minmax(0,1fr));gap:6px}.prob-cell{font-size:13px}.section-intro h2{font-size:22px}.challenge b{font-size:13px}}
+@media(max-width:760px){.brand small,.previous-lab{display:none}.site-header{padding:18px 20px}.brand{font-size:18px}.site-header>div{gap:10px}main{padding:0 18px}.hero{grid-template-columns:1fr;padding:31px 0 28px;gap:0}.hero h1{font-size:39px}.hero p{font-size:13px}.eyebrow{font-size:9px;letter-spacing:.06em}.hero-art{display:none}.hero-chips{margin-top:18px}.setup{padding:17px;gap:14px}.setup label:first-child{width:100%}.setup select{font-size:12px}.setup>.quiet{margin-left:auto}.time-setup{gap:7px}.time-setup span{font-size:10px}.scope-note{padding:11px 17px;font-size:10px}.stage-nav{grid-template-columns:repeat(3,minmax(0,1fr))}.stage-button{padding:13px 8px;border-bottom:1px solid var(--line);gap:6px}.stage-button:nth-child(3){border-right:0}.stage-button b{font-size:11px}.stage-button small{font-size:8px}.stage-button>span{font-size:16px}.stage-button.active:after{height:2px}.stage-button:last-child{border-right:1px solid var(--line)}.playhead{padding:13px 17px;gap:7px;flex-wrap:wrap}.playhead .button{padding:9px 10px;font-size:11px}.live-target{font-size:10px;margin-left:0}.live-target b{font-size:12px}.scrubber{margin:0 4px;min-width:100px}.stage-panel{padding:23px 17px}.section-intro{display:block;margin-bottom:21px}.section-intro h2{font-size:21px}.section-intro>p{text-align:left;font-size:11px;margin-top:10px}.encoder-flow{gap:7px;font-size:10px;flex-wrap:wrap;padding:12px}.plot-title{font-size:11px;align-items:flex-start;flex-wrap:wrap}.plot-title>span{font-size:9px}.prob-grid{grid-template-columns:36px repeat(var(--steps),minmax(0,1fr));gap:4px}.prob-axis{font-size:9px;padding:7px 0}.prob-cell{font-size:10px;min-height:43px;border-radius:5px;padding:5px 0}.prob-cell.winner:after{right:4px;top:-2px;font-size:11px}.prob-total{font-size:8px}.editor-box{grid-template-columns:1fr;gap:16px;padding:16px}.editor-box h3{font-size:15px}.editor-box p{font-size:10px}.insight{padding:15px;gap:11px;margin-top:22px}.insight b{font-size:12px}.insight p{font-size:10px}.section-toolbar{gap:8px;margin-bottom:17px}.button{font-size:11px;padding:9px 11px}.section-toolbar>span{font-size:10px;margin-left:0;width:100%}.collapse-row{grid-template-columns:1fr;padding:16px;gap:12px}.row-label small{display:inline;margin-left:8px}.row-label b{font-size:12px}.collapse-arrow{padding:9px 16px;font-size:10px}.token{min-width:29px;height:33px;font-size:14px;padding:0 6px}.token-row{gap:7px}.collapse-status{font-size:11px}.tiny-comparison{gap:15px;padding-top:20px}.tiny-comparison p{font-size:13px}.tiny-comparison i{padding:0 4px}.tiny-comparison .small-label{font-size:9px}.metrics{gap:8px;grid-template-columns:1fr 1fr}.metrics>div{padding:12px}.metrics .metric-featured{grid-column:1/-1}.metrics strong{font-size:28px;margin:4px 0}.metrics span,.metrics small{font-size:10px}.math-strip{font-size:14px;gap:12px;padding:16px}.path-button{grid-template-columns:15px 1fr;gap:8px;padding:10px}.path-button .token{min-width:22px;height:25px;font-size:11px;padding:0 4px}.path-button .token-row{gap:4px}.path-prob{grid-column:2;justify-content:flex-start;font-size:11px}.path-bar{width:55px}.path-detail{padding:14px;font-size:11px}.target-track{flex-wrap:wrap;gap:10px;font-size:11px}.target-track .token-row{gap:6px}.legend{font-size:9px;gap:12px;flex-wrap:wrap}.dp-detail{grid-template-columns:1fr;gap:15px}.dp-detail h3{font-size:15px}.formula{font-size:13px}.end-sum{font-size:11px;padding:12px}.training-box{grid-template-columns:1fr;padding:17px;gap:22px}.loss-value{font-size:39px}.loss-formula{font-size:20px}.training-main>p{font-size:11px}.training-main .training-scope{font-size:10px}.decode-heading{flex-wrap:wrap;gap:6px;margin:23px 0 16px}.decode-heading h3{font-size:17px;margin:0}.decode-comparison{grid-template-columns:1fr;padding:17px;gap:16px}.decode-comparison>div:first-child{border-right:0;border-bottom:1px solid var(--line);padding:0 0 12px}.decode-comparison h3{font-size:27px}.decode-comparison p{font-size:11px}.rank-row{grid-template-columns:58px 1fr 66px;font-size:11px;gap:10px}.workspace-footer{padding:16px 17px}.workspace-footer>span{display:none}.warning{padding:12px 17px;font-size:11px}.challenges{padding-top:31px}.challenge-grid{grid-template-columns:1fr;gap:12px}.challenge{padding:18px}.challenge b{font-size:14px;margin:9px 0 7px}.teacher-notes{grid-template-columns:1fr;gap:17px;padding:28px 0 17px}.teacher-notes h2{font-size:23px}.teacher-notes li{font-size:11px}.method-note{font-size:10px}.site-footer{padding:20px 18px;flex-wrap:wrap;font-size:9px}.site-footer span:last-child{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style></head>
+<body>
+<header class="site-header"><a class="brand" href="asr-models.html"><span class="brand-mark">∑</span>听见之后 <small>SPEECH LAB / 02</small></a><div><a class="previous-lab" href="gmm-hmm-demo.html" target="_blank" rel="noopener">← GMM–HMM 实验</a><button id="presentBtn" class="quiet">⛶ 课堂投屏</button></div></header>
+<main>
+  <section class="hero"><div><span class="eyebrow">从经典模型走向端到端 · CONNECTIONIST TEMPORAL CLASSIFICATION</span><h1>不告诉它“何时”，<br>只告诉它<span>“说了什么”。</span></h1><p>六个时间步，两个字。文字的时间边界在哪里？<br>让 CTC 把所有可能的对齐，一起纳入学习。</p><div class="hero-chips"><span>逐帧概率</span><i>→</i><span>多条路径</span><i>→</i><b>一个文本</b></div></div><div class="hero-art" aria-label="多条不同对齐路径折叠为开灯"><span class="small-label">时间可以不同，答案仍然相同</span><div class="mini-path"><span class="token open">开</span><span class="token open">开</span><span class="token blank">∅</span><span class="token light">灯</span><span class="token light">灯</span><span class="token blank">∅</span></div><div class="mini-path"><span class="token blank">∅</span><span class="token open">开</span><span class="token blank">∅</span><span class="token blank">∅</span><span class="token light">灯</span><span class="token blank">∅</span></div><div class="hero-answer">↘ <strong>开灯</strong> ↙</div><p>不是选定唯一的时间边界，而是对有效路径求和。</p></div></section>
+  <section class="lab" aria-label="CTC交互实验">
+    <div class="mode-bar"><div><span class="small-label">先分清：我们是在教模型，还是用模型？</span><h3 id="modeTitle">训练时，老师知道答案，但不知道每个字的时间边界。</h3></div><div class="mode-switch" role="group" aria-label="训练或识别模式"><button id="trainingMode" aria-pressed="true">① 看训练 · 有答案</button><button id="recognitionMode" aria-pressed="false">② 看识别 · 无答案</button></div></div>
+    <div id="roleCards" class="role-cards"></div><p id="modeExplain" class="mode-explain"></p>
+    <div class="setup"><label>课堂例子 <select id="presetSelect"><option value="normal">开灯 · 从不确定的输出开始学习</option><option value="clear">开灯 · 较清晰的输出，先看折叠</option><option value="repeat">开开 · 重复字实验</option><option value="uniform">六步均匀概率 · 看路径数量</option><option value="trap">两步小陷阱 · 贪心不等于最优文本</option><option value="impossible">只有两步 · 为什么开开不可能？</option></select></label><label id="targetControl"><span id="targetControlLabel">老师给出的整句答案（训练标签）</span><select id="targetSelect" aria-label="老师给出的整句答案"><option value="1,2">开灯</option><option value="1,1">开开</option><option value="1">开</option><option value="2">灯</option><option value="2,1">灯开</option><option value="">空文本</option></select></label><div class="time-setup"><span>输出时间步</span><button id="removeFrame" class="icon-button" aria-label="减少一个输出时间步">−</button><strong id="timeSteps">6</strong><button id="addFrame" class="icon-button" aria-label="增加一个输出时间步">＋</button></div><button id="resetBtn" class="quiet">↻ 重置例子</button></div>
+    <p id="changeNote" class="change-note" role="status" aria-live="polite">先看网络自己输出了什么，再用老师的整句答案给它评分。</p>
+    <p class="scope-note">这是可调的神经网络输出教学示例，不是已训练的语音识别器。T 表示编码器输出的时间步（可能经过下采样），不必等于原始音频帧数。所有 CTC 概率、路径和梯度均实时计算。</p>
+    <nav class="stage-nav" role="tablist" aria-label="CTC的五个阶段"><button class="stage-button active" id="tab-0" data-stage="0" role="tab" aria-selected="true" aria-controls="stage-0"><span>01</span><b>每步三个概率<small>编码器 → Softmax</small></b></button><button class="stage-button" id="tab-1" data-stage="1" role="tab" aria-selected="false" aria-controls="stage-1"><span>02</span><b>折叠，不是删重<small>路径 → 文本</small></b></button><button class="stage-button" id="tab-2" data-stage="2" role="tab" aria-selected="false" aria-controls="stage-2"><span>03</span><b>把路径加起来<small>一条路径 ≠ 一个文本</small></b></button><button class="stage-button" id="tab-3" data-stage="3" role="tab" aria-selected="false" aria-controls="stage-3"><span>04</span><b>让递推代替枚举<small>前向算法 → 总概率</small></b></button><button class="stage-button" id="tab-4" data-stage="4" role="tab" aria-selected="false" aria-controls="stage-4"><span>05</span><b>怎样学，怎样认<small>CTC 损失 → 解码</small></b></button></nav>
+    <div class="playhead"><button id="runBtn" class="button dark">▶ 自动逐步</button><button id="prevFrame" class="icon-button" aria-label="上一项">‹</button><button id="nextFrame" class="icon-button" aria-label="下一项">›</button><label class="scrubber" for="frameSlider"><span id="cursorLabel">查看第</span> <b id="frameNo">1</b> / <span id="frameTotal">6</span> <span id="cursorUnit">个时间步</span><input type="range" id="frameSlider" min="0" max="5" value="0"></label><span class="live-target"><span id="liveTargetLabel">老师答案：</span><b id="targetName">开灯</b></span></div>
+    <p id="playMeaning" class="play-meaning"></p>
+    <div id="warning" class="warning" role="status" hidden></div>
+    <section id="stage-0" class="stage-panel" role="tabpanel" aria-labelledby="tab-0">
+      <div class="section-intro"><div><span class="small-label">01 / 概率分布</span><h2>每个时间步，先保留所有可能。</h2></div><p>“开”“灯”和 blank，各有一个概率。<br>同一列加起来始终等于 1。</p></div>
+      <div class="encoder-flow"><span>整段声音 X</span><i>→</i><span>Encoder<br><small>可读取声音上下文</small></span><i>→</i><span>时间步表征 hₜ</span><i>→</i><strong>Softmax：开 / 灯 / ∅</strong></div>
+      <div class="frame-focus"><div><span class="small-label" id="focusTitle">当前时间步</span><div id="frameBars"></div></div><div><span class="small-label">逐步读到这里 · 还不是最终最优文本</span><div id="livePrefix" class="live-prefix"></div><p id="frameAction"></p></div></div>
+      <div class="plot-title"><b>网络输出 pₜ(k | X)</b><span><i class="dot blank"></i>blank <i class="dot open"></i>开 <i class="dot light"></i>灯 · 点击格子再调节</span></div><div id="probGrid" class="prob-grid"></div>
+      <div class="editor-box"><div><span class="small-label">修改这一格</span><h3 id="editTitle">第 1 步 · 开</h3><p>拖动滑杆，其他两个概率按原比例自动调整。下方所有阶段同步更新。</p></div><div class="prob-control"><label for="probSlider">当前概率 <strong id="editValue">0.80</strong></label><input type="range" id="probSlider" min="1" max="98" value="80"><small>教学调节范围：0.01—0.98</small></div></div>
+      <div class="insight"><span>↳</span><div><b>CTC 不是一种特定的神经网络。</b><p>它定义“逐步输出如何对应文本”的概率模型和训练目标。编码器可以是 RNN、Transformer 或其他网络；CTC 路径概率按时间步相乘，并不意味着编码器看不到上下文。</p></div></div>
+    </section>
+    <section id="stage-1" class="stage-panel" role="tabpanel" aria-labelledby="tab-1" hidden>
+      <div class="section-intro"><div><span class="small-label">02 / 折叠映射 B</span><h2>先合并连续重复，再移除 blank。</h2></div><p>顺序不能反过来。<br>被 blank 隔开的同字，要保留下来。</p></div>
+      <div class="section-toolbar"><button id="useGreedy" class="button outline" aria-pressed="true">跟随网络的逐步最大概率路径</button><button id="repeatPath" class="button outline">试试：开 · ∅ · 开</button><span id="pathModeNote">当前路径随网络概率更新；点击标签可切换为手动实验</span></div>
+      <div class="collapse-workbench"><div class="collapse-row"><div class="row-label"><b>原始路径 π</b><small>每步一个标签</small></div><div id="rawPath" class="token-row"></div></div><div class="collapse-arrow">↓ ① 合并相邻且相同的标签（blank 也一样）</div><div class="collapse-row"><div class="row-label"><b>合并之后</b><small>blank 暂时留下</small></div><div id="mergedPath" class="token-row"></div></div><div class="collapse-arrow">↓ ② 移除所有 blank（∅）</div><div class="collapse-row final-row"><div class="row-label"><b>最终文本 B(π)</b><small>变长输出</small></div><div id="collapsedPath" class="token-row"></div></div></div>
+      <div class="collapse-status" id="collapseStatus"></div><div class="tiny-comparison"><div><span class="small-label">同一个字持续多步</span><p>开 · 开 · 开 <i>→</i> <b>开</b></p></div><div><span class="small-label">两个相同的字</span><p>开 · ∅ · 开 <i>→</i> <b>开开</b></p></div></div>
+      <div class="insight"><span>↳</span><div><b>blank 不等于静音，也不是空格。</b><p>它表示这个时间步不输出新的文本标签。有声的时间步也可能输出 blank；最终文本中没有这个符号。重复字之间必须有至少一个 blank，才能不被合并。</p></div></div>
+    </section>
+    <section id="stage-2" class="stage-panel" role="tabpanel" aria-labelledby="tab-2" hidden>
+      <div class="section-intro"><div><span class="small-label">03 / 对齐边缘化</span><h2>同一句话，不止一种时间安排。</h2></div><p>一条路径的概率：沿时间相乘。<br>一个文本的概率：把有效路径相加。</p></div>
+      <div class="metrics"><div><span>全部逐步路径</span><strong id="allCount">729</strong><small id="allCountFormula">3⁶ 条</small></div><div><span>折叠为目标文本的路径</span><strong id="validCount">70</strong><small>只累加这些有效路径</small></div><div class="metric-featured"><span id="probabilityLabel">P(开灯 | X)</span><strong id="totalProbability">—</strong><small id="bestContribution">—</small></div></div>
+      <div class="math-strip"><div>p(π | X) = ∏ₜ pₜ(πₜ | X)</div><div>P(Y | X) = Σ<sub>π: B(π)=Y</sub> p(π | X)</div></div>
+      <div class="accumulator"><div><span class="small-label">这次播放是在逐条加路径，不是在重新训练</span><h3 id="accumTitle">已累加 0 条有效路径</h3><div class="sum-progress"><i id="sumProgress"></i></div></div><div><span>目前累加的概率</span><strong id="partialProbability">0</strong><small id="sumAction">点击下一项，加进第一条路径。</small></div></div>
+      <div class="plot-title"><b>目标文本的有效路径 · 按概率排序</b><span>点击一条，查看它怎样折叠</span></div><div id="pathList" class="path-list"></div><button id="morePaths" class="quiet" hidden>再显示 12 条 ↓</button><div class="path-detail" id="pathDetail"></div>
+      <div class="insight"><span>↳</span><div><b>训练时不需要先挑中一条“标准对齐”。</b><p>只给整句转写，CTC 就把所有能折叠为它的路径纳入目标。这是“无需预先提供帧级对齐”，不是“对齐不重要”或“不需要文本标签”。</p></div></div>
+    </section>
+    <section id="stage-3" class="stage-panel" role="tabpanel" aria-labelledby="tab-3" hidden>
+      <div class="section-intro"><div><span class="small-label">04 / 前向递推</span><h2>相同的进度，就汇入同一个格子。</h2></div><p>每个格子保存到这里的路径概率之和。<br>这里用“加”，不是 Viterbi 的“取最大”。</p></div>
+      <div class="target-track"><span>把目标插入 blank：</span><div id="expandedTarget" class="token-row"></div></div><div class="legend"><span>→ 时间每次前进一步</span><span>进度可停留、前进 1 格、条件允许时跳 2 格</span></div>
+      <div class="lattice-scroll"><svg id="lattice" role="group" aria-label="CTC前向算法时间与扩展目标进度网格，点击格子查看递推"></svg></div>
+      <div class="dp-detail"><div><span class="small-label">点选格子的计算</span><h3 id="cellTitle">—</h3><p id="cellExplain">—</p><div class="formula">αₜ(s) = pₜ(Y′ₛ) × Σ<sub>i ∈ 合法前驱</sub> αₜ₋₁(i)</div></div><div id="cellCalculation" class="calculation"></div></div><div class="end-sum" id="endSum"></div>
+      <div class="insight"><span>↳</span><div><b>为什么有时能跳过 blank，有时不能？</b><p>“开 → 灯”可以跨过中间 blank；“开 → 开”不可以，否则两个“开”会折叠成一个。也不能跳入 blank。扩展目标的位置是“输出进度”，不是上节课的声学状态。对给定长度 U 的目标，前向计算量为 O(TU)。</p></div></div>
+    </section>
+    <section id="stage-4" class="stage-panel" role="tabpanel" aria-labelledby="tab-4" hidden>
+      <div class="section-intro"><div><span class="small-label">05 / 损失与解码</span><h2>学习时求和，识别时找文本。</h2></div><p>训练：让正确转写的总概率上升。<br>识别：逐步贪心只是一个近似。</p></div>
+      <div class="training-box" id="trainingBox"><div class="training-main"><span class="small-label">训练目标 · 用老师的整句答案评分</span><div class="loss-formula">L<sub>CTC</sub> = −ln P(Y | X)</div><div class="loss-value" id="lossValue">—</div><p id="lossNote">—</p><div class="section-toolbar"><button id="trainOne" class="button dark">学习 1 次</button><button id="trainTen" class="button outline">学习 10 次</button><button id="undoTraining" class="quiet" disabled>撤销本轮学习</button></div><p class="training-scope">这里直接优化这一个例子的输出 logits，学习率 0.7；使用真实 CTC 梯度。它不是完整语音编码器训练，也不能用于未见语音。</p></div><div class="training-chart"><div class="plot-title"><b>这次实验的损失</b><span id="trainCount">0 次更新</span></div><svg id="lossChart" viewBox="0 0 380 170" role="img" aria-label="CTC梯度更新的实际损失曲线"></svg><div id="gradientDetail" class="gradient-detail"></div></div></div>
+      <div id="trainingChanges" class="training-changes"><div class="plot-title"><b>学完后，网络输出到底变了什么？</b><span>点击时间列，查看这一列的概率变化</span></div><div id="beforeAfter"></div><p id="trainingChangeNote"></p></div>
+      <p id="recognitionExplain" class="mode-explain" hidden>识别时没有老师答案：下面只根据网络的整张概率表搜索文本，不使用上面的训练标签，也不更新参数。</p>
+      <div class="decode-heading"><h3>最佳路径，不一定给出最佳文本。</h3><button id="trapBtn" class="button outline">加载两帧反例 ↗</button></div><div class="decode-comparison"><div><span class="small-label">逐步贪心 · 先取最大，再折叠</span><div id="greedyPath" class="token-row"></div><p id="greedyText">—</p></div><div><span class="small-label">完整文本概率 · 先把同文路径加起来</span><h3 id="exactText">—</h3><p id="exactNote">—</p></div></div><div id="textRanking" class="text-ranking"></div><p class="plot-explain">这里 T ≤ 8、词表只有两个字，因此能完整枚举，得到精确文本排名。真实长语音通常用前缀束搜索近似，常结合语言模型；本页面不把精确枚举称为 beam search。</p>
+      <div class="insight"><span>↳</span><div><b>和刚才的 GMM–HMM 连起来。</b><p>上个演示用 Viterbi 选出最佳状态路径；CTC 训练把目标对应的路径相加。HMM 的前向算法也能求和，HMM 训练本身并非必须依赖人工时间边界。CTC 的特点是字符 / 子词 + blank 的输出方式和序列级训练目标，而不只是“有动态规划”。</p></div></div>
+    </section>
+    <footer class="workspace-footer"><button id="backStage" class="quiet" disabled>← 上一步</button><span id="stageHint">点击一个概率，观察模型还保留了哪些可能。</span><button id="nextStage" class="button dark">下一步：折叠规则 →</button></footer>
+  </section>
+  <section class="challenges"><div class="section-intro"><div><span class="small-label">带着三个问题，再做一次实验</span><h2>让容易混淆的地方，自己显形。</h2></div></div><div class="challenge-grid"><button class="challenge" id="repeatChallenge"><span class="small-label">实验 A / 重复字</span><b>为什么“开开”至少要三步？ ↗</b><p>加载只有两步的例子，再增加一步，看有效路径从 0 变为 1。</p></button><button class="challenge" id="sumChallenge"><span class="small-label">实验 B / 多条对齐</span><b>一条路径很小，文本概率呢？ ↗</b><p>给六步相同的概率，比较最强路径和所有有效路径之和。</p></button><button class="challenge" id="decodeChallenge"><span class="small-label">实验 C / 贪心反例</span><b>每步都最优，为什么还会选错？ ↗</b><p>两步就能构造反例：blank 的单步概率最高，最可能的文本却不是空文本。</p></button></div></section>
+  <section class="teacher-notes"><div><span class="small-label">课堂里的三个提醒</span><h2>不需要边界，<br>仍然需要顺序。</h2></div><ol><li><b>CTC 的对齐是单调的。</b>路径不能颠倒目标标签顺序；相邻重复标签还需要 blank 分隔。</li><li><b>给定输入后的逐步条件独立，不等于不看声音上下文。</b>编码器仍可读取上下文，但标准 CTC 的输出分布没有显式条件于已生成的文本历史。</li><li><b>CTC 不会自动保证流式。</b>是否能实时输出，取决于编码器是否依赖未来声音，以及解码设计；不是加了 CTC 损失就能流式。</li></ol></section>
+  <details class="method-note"><summary>教学边界、计算约定与参考资料</summary><div><p>本页面采用字符级小词表 {开, 灯} 和 blank ∅；概率是预设或手动调整的教学数据，不来自真实语音编码器。为便于看清全部路径，输出长度限制为 2—8 步。实际 ASR 常使用更大字符或子词词表、下采样编码器，并在 log 域计算以防数值下溢。</p><p>路径概率是逐步条件概率的乘积；文本概率对折叠映射下的所有原像求和。前向表使用 log-sum-exp，显示为普通概率；当前时间步之后的数值在逐步演示中隐藏。训练演示通过前向—后向求出标签占用后验 γ，使用 ∂L/∂zₜ(k) = pₜ(k) − γₜ(k) 更新单例 logits。损失为单条序列的负自然对数概率，不作长度平均。</p><p>最少时间步 = 标签数 + 相邻相同标签对数；长度不足时目标概率为 0、损失为 ∞，页面禁止无效学习。blank 是折叠规则的符号，不是声学静音类别。不能把 CTC 的字符后验与 GMM 的特征概率密度混为一谈。</p><p>参考：<a href="https://www.cs.toronto.edu/~graves/icml_2006.pdf" target="_blank" rel="noopener">Graves 等，CTC 原始论文（ICML 2006）</a>；<a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.CTCLoss.html" target="_blank" rel="noopener">PyTorch CTCLoss 文档</a>。</p></div></details>
+</main><footer class="site-footer"><span>听见之后 / SPEECH LAB</span><span>时间未知，文字已知；把对齐交给学习。</span><span>GMM–HMM → CTC → ATTENTION / RNN-T</span></footer>
+<script>(function(root) {
+  'use strict';
+  const BLANK = 0, symbols = ['∅', '开', '灯'];
+  function logSum(a) {
+    const m = Math.max(...a);
+    return m === -Infinity ? m : m + Math.log(a.reduce((s,x)=>s+Math.exp(x-m),0));
+  }
+  const log = p => p > 0 ? Math.log(p) : -Infinity;
+  function softmax(a) { const m=Math.max(...a), e=a.map(x=>Math.exp(x-m)), z=e.reduce((s,x)=>s+x,0); return e.map(x=>x/z); }
+  function collapse(path) {
+    const merged=path.filter((k,t)=>t===0 || k!==path[t-1]);
+    return {merged, output:merged.filter(k=>k!==BLANK)};
+  }
+  const key = seq => seq.map(k=>symbols[k]).join('');
+  function enumerate(probs) {
+    const groups=new Map(), paths=[];
+    function visit(t,path,lp) {
+      if(t===probs.length) {
+        const output=collapse(path).output, name=key(output), item={path:path.slice(),output,logp:lp,p:Math.exp(lp)};
+        paths.push(item);
+        if(!groups.has(name)) groups.set(name,{name,output,logp:-Infinity,count:0,paths:[]});
+        const g=groups.get(name); g.logp=logSum([g.logp,lp]); g.count++; g.paths.push(item); return;
+      }
+      for(let k=0;k<symbols.length;k++){path.push(k);visit(t+1,path,lp+log(probs[t][k]));path.pop();}
+    }
+    visit(0,[],0);
+    paths.sort((a,b)=>b.logp-a.logp);
+    const ranked=Array.from(groups.values()).sort((a,b)=>b.logp-a.logp);
+    ranked.forEach(g=>{g.p=Math.exp(g.logp);g.paths.sort((a,b)=>b.logp-a.logp);});
+    return {paths,groups,ranked};
+  }
+  function expanded(target) { return [BLANK,...target.flatMap(k=>[k,BLANK])]; }
+  function predecessors(ext,s) {
+    const a=[s]; if(s>0)a.push(s-1);
+    if(s>1 && ext[s]!==BLANK && ext[s]!==ext[s-2])a.push(s-2);
+    return a;
+  }
+  function forward(probs,target) {
+    const ext=expanded(target), T=probs.length, S=ext.length;
+    const alpha=Array.from({length:T},()=>Array(S).fill(-Infinity));
+    const counts=Array.from({length:T},()=>Array(S).fill(0));
+    if(!T)return {ext,alpha,counts,logp:target.length ? -Infinity : 0,count:target.length ? 0 : 1};
+    alpha[0][0]=log(probs[0][BLANK]); counts[0][0]=1;
+    if(S>1){alpha[0][1]=log(probs[0][ext[1]]);counts[0][1]=1;}
+    for(let t=1;t<T;t++)for(let s=0;s<S;s++) {
+      const prev=predecessors(ext,s);
+      alpha[t][s]=log(probs[t][ext[s]])+logSum(prev.map(i=>alpha[t-1][i]));
+      counts[t][s]=prev.reduce((sum,i)=>sum+counts[t-1][i],0);
+    }
+    const ends=S>1 ? [S-2,S-1] : [0];
+    return {ext,alpha,counts,logp:logSum(ends.map(s=>alpha[T-1][s])),count:ends.reduce((sum,s)=>sum+counts[T-1][s],0)};
+  }
+  function posterior(probs,target) {
+    const f=forward(probs,target), {ext,alpha,logp}=f, T=probs.length,S=ext.length;
+    // beta excludes the emission at t, unlike alpha. This avoids double-counting.
+    const beta=Array.from({length:T},()=>Array(S).fill(-Infinity));
+    const gamma=Array.from({length:T},()=>Array(symbols.length).fill(0));
+    if(!T || !Number.isFinite(logp))return {...f,beta,gamma,gradient:null};
+    beta[T-1][S-1]=0; if(S>1)beta[T-1][S-2]=0;
+    for(let t=T-2;t>=0;t--)for(let s=0;s<S;s++) {
+      const next=[s,s+1,s+2].filter(j=>j<S && predecessors(ext,j).includes(s));
+      beta[t][s]=logSum(next.map(j=>log(probs[t+1][ext[j]])+beta[t+1][j]));
+    }
+    for(let t=0;t<T;t++)for(let s=0;s<S;s++) gamma[t][ext[s]]+=Math.exp(alpha[t][s]+beta[t][s]-logp);
+    return {...f,beta,gamma,gradient:probs.map((row,t)=>row.map((p,k)=>p-gamma[t][k]))};
+  }
+  function trainStep(probs,target,rate=.7) {
+    const p=posterior(probs,target);
+    if(!p.gradient)return probs.map(row=>row.slice());
+    return probs.map((row,t)=>softmax(row.map((x,k)=>log(Math.max(x,1e-30))-rate*p.gradient[t][k])));
+  }
+  function minFrames(target) { return target.length+target.reduce((n,k,i)=>n+(i>0 && k===target[i-1]?1:0),0); }
+  function greedy(probs) { return probs.map(row=>row.indexOf(Math.max(...row))); }
+  function pathProbability(probs,path) {return Math.exp(path.reduce((s,k,t)=>s+log(probs[t][k]),0));}
+  function setProbability(row,k,p) {
+    p=Math.max(.01,Math.min(.98,p)); const old=row.reduce((s,x,i)=>s+(i===k?0:x),0);
+    return row.map((x,i)=>i===k?p:(1-p)*(old>0?x/old:1/(row.length-1)));
+  }
+  const api={symbols,BLANK,logSum,softmax,collapse,key,enumerate,expanded,predecessors,forward,posterior,trainStep,minFrames,greedy,pathProbability,setProbability};
+  root.CTCEngine=api; if(typeof module!=='undefined')module.exports=api;
+})(typeof window==='undefined'?globalThis:window);
+</script>
+<script>(function(){
+  'use strict';
+  const $=id=>document.getElementById(id), $$=s=>Array.from(document.querySelectorAll(s)), E=window.CTCEngine;
+  const colors=['#939b91','#477862','#c56c43'], classes=['blank','open','light'];
+  const presets={
+    normal:{target:[1,2],probs:[[.45,.4,.15],[.35,.5,.15],[.6,.25,.15],[.45,.2,.35],[.45,.15,.4],[.6,.2,.2]]},
+    clear:{target:[1,2],probs:[[.15,.80,.05],[.2,.75,.05],[.75,.2,.05],[.15,.05,.8],[.2,.05,.75],[.8,.1,.1]]},
+    repeat:{target:[1,1],probs:[[.15,.8,.05],[.2,.75,.05],[.8,.15,.05],[.15,.8,.05],[.75,.2,.05]]},
+    uniform:{target:[1,2],probs:Array.from({length:6},()=>[1/3,1/3,1/3])},
+    trap:{target:[1],probs:[[.4,.35,.25],[.4,.35,.25]]},
+    impossible:{target:[1,1],probs:[[.3,.6,.1],[.3,.6,.1]]}
+  };
+  let probs,target,stage=0,frame=0,selectedK=1,selectedS=1,raw=[],all,f,valid,selectedPath=0;
+  let timer=null,history=[],trainingBackup=null,updates=0,mode='training',pathCursor=0,followGreedy=true,autoRemaining=0;
+  const copy=a=>a.map(row=>row.slice()), name=seq=>E.key(seq)||'空文本';
+  const number=(p,d=5)=>p===0?'0':p<.0001?p.toExponential(2):p.toFixed(d);
+  const lossText=x=>Number.isFinite(x)?x.toFixed(5):'∞';
+  const token=(k,extra='')=>`<span class="token ${classes[k]} ${extra}">${E.symbols[k]}</span>`;
+  function runLabel(){return stage===2?'▶ 逐条累加路径':stage===4?(mode==='training'?'▶ 连续学习 10 次':'识别不需要学习'):'▶ 自动逐步';}
+  function stop(){clearInterval(timer);timer=null;$('runBtn').textContent=runLabel();}
+  function note(text){$('changeNote').textContent=text;}
+  function recompute(resetLearning=true){
+    all=E.enumerate(probs);f=E.posterior(probs,target);valid=all.groups.get(E.key(target));
+    if(followGreedy)raw=E.greedy(probs);
+    pathCursor=Math.min(pathCursor,valid?.count||0);
+    selectedPath=Math.min(selectedPath,Math.max(0,(valid?.paths.length||0)-1));
+    selectedS=Math.min(selectedS,f.ext.length-1);frame=Math.min(frame,probs.length-1);
+    if(resetLearning){history=[-f.logp];trainingBackup=null;updates=0;}
+    $('timeSteps').textContent=probs.length;
+    $('removeFrame').disabled=probs.length<=2;$('addFrame').disabled=probs.length>=8;
+    $('targetName').textContent=name(target);$('targetSelect').value=target.join(',');
+    const impossible=probs.length<E.minFrames(target);
+    $('warning').hidden=!impossible || (mode==='recognition'&&stage!==2&&stage!==3);
+    $('warning').textContent=`“${name(target)}”至少需要 ${E.minFrames(target)} 个时间步（${target.length} 个标签 + ${E.minFrames(target)-target.length} 个重复字分隔）。现在只有 ${probs.length} 步：有效路径为 0，目标概率为 0，损失为 ∞。试试增加时间步。`;
+    render();
+  }
+  function preset(key){stop();const p=presets[key];probs=copy(p.probs);target=p.target.slice();frame=0;selectedS=1;selectedK=1;followGreedy=true;raw=E.greedy(probs);selectedPath=0;pathCursor=0;$('presetSelect').value=key;recompute();note(mode==='training'?'老师给的是整句答案，不是每一步的标签。网络可能暂时读错；点击第 05 页的“学习”，才会更新网络概率。':'识别不接收正确答案。固定这张网络概率表，比较不同文本的总概率。');}
+  function chooseFrame(n){frame=Math.max(0,Math.min(probs.length-1,n));render();}
+  function chooseStage(n){stop();stage=n;$$('.stage-panel').forEach((el,i)=>el.hidden=i!==n);$$('.stage-button').forEach((b,i)=>{b.classList.toggle('active',i===n);b.setAttribute('aria-selected',String(i===n));});$('backStage').disabled=n===0;
+    $('nextStage').textContent=['下一步：折叠规则 →','下一步：路径求和 →','下一步：前向算法 →','下一步：学习与解码 →','回到概率，再做实验 ↻'][n];
+    $('stageHint').textContent=['点击一个概率，观察模型还保留了哪些可能。','改一条路径，查看两步折叠过程。','不同的时间安排，合成同一个文本概率。','逐步推进，把前驱的概率相加。','给正确文本更多概率；别把贪心当成最优文本。'][n];render();
+  }
+  function modeView(){
+    const train=mode==='training',gp=E.greedy(probs),greedyOut=E.collapse(gp).output,best=all.ranked[0];
+    $('trainingMode').setAttribute('aria-pressed',String(train));$('recognitionMode').setAttribute('aria-pressed',String(!train));
+    $('modeTitle').textContent=train?'训练时，老师知道答案，但不知道每个字的时间边界。':'识别时，答案未知：从网络概率中搜索最可能的文本。';
+    $('modeExplain').textContent=train?`这是一条带整句转写的训练样本：老师答案是“${name(target)}”。只告诉标签顺序，不给每个字的起止时间。CTC 给所有符合答案的对齐路径打分；点击学习后，网络输出才会改变。更换答案是在同一张概率表上换训练标签，不是在换一段录音。`:'训练结束后，给模型一段声音即可，不需要输入正确文本。本演示固定当前网络概率，再对所有可输出文本求和并排名；下面的“候选检查”只是查看某句话的分数，不能指定识别结果。';
+    $('roleCards').innerHTML=`<div><span class="small-label">${train?'① 老师提供 · 整句答案':'① 使用模型 · 不提供答案'}</span><strong>${train?name(target):'答案未知'}</strong><p>${train?'训练标签，不是模型预测，也没有时间边界。':'只有网络逐步概率；识别结果必须从中推断。'}</p></div><div><span class="small-label">② 网络自己输出 · 逐步最大标签</span><div class="role-path">${gp.map(k=>token(k)).join('')}</div><p>先按最大标签粗读为“${name(greedyOut)}”；${train?'它可能与老师答案不同。':'这只是贪心结果，不一定是概率最高的文本。'}</p></div><div><span class="small-label">${train?'③ CTC 给老师答案评分':'③ CTC 按文本总概率排名'}</span><strong>${train?number(Math.exp(f.logp),4):name(best.output)}</strong><p>${train?`答案“${name(target)}”的总概率；损失 ${lossText(-f.logp)}。`:`最可能文本的总概率 ${number(best.p)}；不读取老师答案。`}</p></div>`;
+    $('targetControlLabel').textContent=train?'老师给出的整句答案（训练标签）':'候选检查：只算这句话的分数';
+    $('targetSelect').setAttribute('aria-label',train?'老师给出的整句答案':'要检查分数的候选文本');
+    $('targetControl').hidden=!train&&stage!==2&&stage!==3;
+    $('liveTargetLabel').textContent=train?'老师答案：':'正在检查：';
+    $('targetName').textContent=!train&&stage!==2&&stage!==3?'所有文本':name(target);
+    $('trainingBox').hidden=$('trainingChanges').hidden=!train;
+    $('recognitionExplain').hidden=train;
+    $('warning').hidden=probs.length>=E.minFrames(target)||(!train&&stage!==2&&stage!==3);
+  }
+  function cursorView(){
+    const sum=stage===2,max=sum?(valid?.count||0):probs.length-1,current=sum?pathCursor:frame;
+    $('frameSlider').min=0;$('frameSlider').max=max;$('frameSlider').value=current;
+    $('frameNo').textContent=sum?pathCursor:frame+1;$('frameTotal').textContent=sum?max:probs.length;
+    $('cursorLabel').textContent=sum?'已累加':'查看第';$('cursorUnit').textContent=sum?'条有效路径':'个时间步';
+    $('prevFrame').disabled=current===0;$('nextFrame').disabled=current===max;
+    $('runBtn').disabled=(stage===2&&!max)||(stage===4&&(mode!=='training'||!f.gradient));
+    if(!timer)$('runBtn').textContent=runLabel();
+    $('playMeaning').textContent=[
+      '播放 = 逐步读取同一张概率表；不是训练。看左侧三个概率和右侧已读出的文字怎样变化。',
+      '播放 = 把当前路径一项项送进折叠规则。同字重复时不增加字，blank 分隔后再遇同字才增加。',
+      '播放 = 一条条累加有效路径。上方总概率是完整答案；下面的“目前累加”会从 0 逐渐接近它。',
+      '播放 = 揭示下一列前向概率；每个格子合并不同对齐，不是选中一个唯一状态。',
+      mode==='training'?'“连续学习” = 每次真的更新概率。时间滑杆只选择要检查哪一列，不能让整句损失自行变化。':'识别只读当前概率，不学习也不需要答案；下方比较贪心和文本求和的结果。'
+    ][stage];
+  }
+  function frameView(){
+    const gp=E.greedy(probs),k=gp[frame],prefix=E.collapse(gp.slice(0,frame+1)).output;
+    $('focusTitle').textContent=`第 ${frame+1} 步 · 网络给出的三个概率`;
+    $('frameBars').innerHTML=probs[frame].map((p,k)=>`<div class="frame-bar"><span>${k===0?'∅ blank':E.symbols[k]}</span><span class="frame-bar-track"><i style="width:${p*100}%;background:${colors[k]}"></i></span><strong>${p.toFixed(3)}</strong></div>`).join('');
+    $('livePrefix').textContent=name(prefix);
+    $('frameAction').textContent=k===0?'这一项是 blank，不增加文字。blank 不是静音标签。':frame>0&&k===gp[frame-1]?`连续再次看到“${E.symbols[k]}”：合并重复，文字不增加。`:`这一项是“${E.symbols[k]}”，与上一项不同：读入一个新字。`;
+  }
+  function probabilities(){
+    frameView();
+    const grid=$('probGrid');grid.style.setProperty('--steps',probs.length);
+    let html='<div class="prob-axis">标签 / t</div>'+probs.map((_,t)=>`<div class="prob-axis ${t===frame?'current':''}">t${t+1}</div>`).join('');
+    for(let k=0;k<3;k++){
+      html+=`<div class="prob-axis" style="color:${colors[k]}">${E.symbols[k]}${k===0?' blank':''}</div>`;
+      html+=probs.map((row,t)=>{const p=row[k],winner=row.indexOf(Math.max(...row))===k;return `<button class="prob-cell ${t===frame&&k===selectedK?'selected':''} ${winner?'winner':''}" data-t="${t}" data-k="${k}" aria-pressed="${t===frame&&k===selectedK}" aria-label="第 ${t+1} 步 ${k===0?'blank':E.symbols[k]}，概率 ${p.toFixed(4)}，点击调整" style="background:${colors[k]}${Math.round(16+p*100).toString(16).padStart(2,'0')};color:${k===2?'#8a4b2c':k===1?'#254e3b':'#53614f'}">${p.toFixed(2)}</button>`;}).join('');
+    }
+    html+='<div class="prob-total">列总和</div>'+probs.map(row=>`<div class="prob-total">${row.reduce((s,x)=>s+x,0).toFixed(2)}</div>`).join('');grid.innerHTML=html;
+    $('editTitle').textContent=`第 ${frame+1} 步 · ${selectedK===0?'blank（∅）':E.symbols[selectedK]}`;
+    $('editValue').textContent=probs[frame][selectedK].toFixed(4);$('probSlider').value=probs[frame][selectedK]*100;
+  }
+  function collapseView(){
+    $('useGreedy').setAttribute('aria-pressed',String(followGreedy));
+    $('pathModeNote').textContent=followGreedy?'跟随网络：调整概率或学习后，这条路径自动更新。':'手动实验路径：不代表网络预测。点击“跟随网络”恢复。';
+    const prefix=raw.slice(0,frame+1),c=E.collapse(prefix);
+    $('rawPath').innerHTML=raw.map((k,t)=>`<button class="token ${classes[k]} ${t===frame?'active':''} ${t>frame?'future':''}" data-t="${t}" aria-label="第 ${t+1} 步标签 ${k===0?'blank':E.symbols[k]}，点击切换">${E.symbols[k]}</button>`).join('');
+    $('mergedPath').innerHTML=c.merged.map(k=>token(k)).join('')||'<span class="empty-text">无标签</span>';
+    $('collapsedPath').innerHTML=c.output.map(k=>token(k)).join('')||'<span class="empty-text">空文本（没有输出字）</span>';
+    const full=E.collapse(raw).output,match=E.key(full)===E.key(target);
+    $('collapseStatus').classList.toggle('mismatch',!match);
+    $('collapseStatus').textContent=`当前演示前 ${frame+1} 步，折叠结果为“${name(c.output)}”。整条路径折叠为“${name(full)}”，${match?'属于':'不属于'}目标“${name(target)}”的有效路径；整条路径概率 ${number(E.pathProbability(probs,raw))}。浅色标签是尚未演示的时间步。`;
+  }
+  function pathView(){
+    $('allCount').textContent=all.paths.length.toLocaleString();$('allCountFormula').textContent=`3^${probs.length} 条 · 包含所有标签组合`;
+    $('validCount').textContent=valid?.count||0;$('probabilityLabel').textContent=`P(${name(target)} | X)`;$('totalProbability').textContent=number(Math.exp(f.logp));
+    const paths=valid?.paths||[];$('bestContribution').textContent=paths.length?`最强单路径仅占总概率 ${(100*Math.exp(paths[0].logp-f.logp)).toFixed(1)}%`:'没有有效路径';
+    const start=Math.floor(selectedPath/12)*12,end=Math.min(paths.length,start+12);
+    $('pathList').innerHTML=paths.length?paths.slice(start,end).map((p,j)=>{const i=start+j;return `<button class="path-button ${i===selectedPath?'selected':''} ${i<pathCursor?'accumulated':''}" data-path="${i}" aria-pressed="${i===selectedPath}"><span class="path-index">${i<pathCursor?'✓ ':''}${i+1}</span><span class="token-row">${p.path.map(k=>token(k)).join('')}</span><span class="path-prob"><span class="path-bar"><i style="width:${100*Math.exp(p.logp-paths[0].logp)}%"></i></span>${number(p.p)}</span></button>`;}).join(''):'<div class="path-empty">没有能折叠为目标文本的路径。增加时间步，或更换目标后再试。</div>';
+    const accumulated=paths.slice(0,pathCursor).reduce((s,p)=>s+p.p,0),last=paths[pathCursor-1],previous=accumulated-(last?.p||0);
+    $('accumTitle').textContent=`已累加 ${pathCursor} / ${paths.length} 条有效路径`;
+    $('partialProbability').textContent=number(accumulated,7);$('sumProgress').style.width=`${paths.length?100*pathCursor/paths.length:0}%`;
+    $('sumAction').textContent=last?`${number(previous,7)} + 路径 ${pathCursor} 的 ${number(last.p,7)} = ${number(accumulated,7)}${pathCursor===paths.length?'；全部加完，与上方总概率一致。':''}`:'还没有开始相加。点击“下一项”或“逐条累加路径”。';
+    $('morePaths').hidden=paths.length<=end;$('morePaths').textContent=`查看下一组 ${Math.min(12,paths.length-end)} 条 ↓（当前第 ${start+1}—${end} / ${paths.length}）`;
+    const p=paths[selectedPath];$('pathDetail').hidden=!p;if(!p)return;
+    const c=E.collapse(p.path),multipliers=p.path.map((k,t)=>`p${t+1}(${E.symbols[k]})=${probs[t][k].toFixed(3)}`).join(' × ');
+    $('pathDetail').innerHTML=`<b>路径 ${selectedPath+1}：${multipliers}</b><p>相乘 = ${number(p.p,7)}；这条路径贡献目标概率的 ${(100*Math.exp(p.logp-f.logp)).toFixed(2)}%。列表当前显示排名 ${start+1}—${end}，但完整总概率包含全部 ${paths.length} 条。</p><div class="token-row">${c.merged.map(k=>token(k)).join('')}<span>→</span>${c.output.map(k=>token(k)).join('')||'<span>空文本</span>'}</div><p>上面先合并重复，再去掉 blank；不同路径若得到相同文本，它们的概率就相加。</p>`;
+  }
+  function latticeView(){
+    const ext=f.ext,S=ext.length,T=probs.length,w=Math.max(620,T*90+104),h=S*61+62;
+    const px=t=>90+(w-120)*t/Math.max(1,T-1),py=s=>43+s*61;
+    let svg='<defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="#c56c43"/></marker></defs>';
+    for(let s=0;s<S;s++)svg+=`<text x="13" y="${py(s)+5}" fill="${colors[ext[s]]}" font-size="14">${s+1} · ${E.symbols[ext[s]]}</text>`;
+    for(let t=0;t<T;t++)svg+=`<text x="${px(t)}" y="19" text-anchor="middle" font-size="11" fill="${t===frame?'#c56c43':'#738075'}">t${t+1}</text>`;
+    if(frame>0)for(const s of E.predecessors(ext,selectedS)){svg+=`<path d="M${px(frame-1)+27} ${py(s)}L${px(frame)-27} ${py(selectedS)}" stroke="#c56c43" stroke-width="2" fill="none" marker-end="url(#arrow)"/>`;}
+    for(let t=0;t<T;t++)for(let s=0;s<S;s++){
+      const future=t>frame,p=Math.exp(f.alpha[t][s]),reach=Number.isFinite(f.alpha[t][s]);
+      const strength=Math.min(1,Math.max(0,1+f.alpha[t][s]/12)),chosen=t===frame&&s===selectedS;
+      const fill=future?'#f2f3ec':reach?`rgba(49,92,75,${.08+.7*strength})`:'#f0f1e9';
+      svg+=`<g class="lattice-cell" role="button" tabindex="0" data-t="${t}" data-s="${s}" aria-label="第 ${t+1} 步，进度 ${s+1} ${ext[s]===0?'blank':E.symbols[ext[s]]}，${future?'尚未展示':`前向概率 ${number(p)}`}，点击查看"><rect x="${px(t)-28}" y="${py(s)-19}" width="56" height="38" rx="6" fill="${fill}" stroke="${chosen?'#c56c43':'#d5ddd0'}" stroke-width="${chosen?2.5:1}"/><text x="${px(t)}" y="${py(s)+4}" text-anchor="middle" fill="${!future&&strength>.48?'#fffefa':'#5d705f'}" font-size="10">${future?'·':number(p,3)}</text></g>`;
+    }
+    svg+=`<text x="${w-15}" y="${h-8}" text-anchor="end" font-size="10" fill="#738075">纵轴：扩展目标位置 · 不是声学状态</text>`;
+    $('lattice').setAttribute('viewBox',`0 0 ${w} ${h}`);$('lattice').innerHTML=svg;
+    $('expandedTarget').innerHTML=ext.map((k,s)=>token(k,s===selectedS?'active':'')).join('');
+    const s=selectedS,k=ext[s],prev=E.predecessors(ext,s),value=Math.exp(f.alpha[frame][s]);
+    $('cellTitle').textContent=`t${frame+1} · 进度 ${s+1}（${k===0?'blank':E.symbols[k]}）`;
+    if(frame===0){
+      $('cellExplain').textContent='第一步只能从起始 blank 或第一个目标标签开始。其他位置初始化为 0。';
+      $('cellCalculation').innerHTML=`<div class="calc-row"><span>能否作为起点</span><strong>${s<=1?'可以':'不可以'}</strong></div><div class="calc-row"><span>本步 ${E.symbols[k]} 的概率</span><strong>${number(probs[0][k])}</strong></div><div class="calc-row total"><span>α₁(${s+1})</span><strong>${number(value)}</strong></div>`;
+    }else{
+      const sum=E.logSum(prev.map(i=>f.alpha[frame-1][i]));
+      $('cellExplain').textContent=`把前一步合法前驱的概率相加，再乘本步 ${E.symbols[k]} 的概率。${s>1&&k!==0&&k===ext[s-2]?'这里不能跳两格：前后目标标签相同，必须经过中间 blank。':s>1&&k===0?'不能跳两格进入 blank。':prev.includes(s-2)?'这里能跳两格：跳过 blank，进入不同的目标标签。':''}`;
+      $('cellCalculation').innerHTML=prev.map(i=>`<div class="calc-row"><span>来自进度 ${i+1} · ${i===s?'停留':i===s-1?'前进 1 格':'跳过 blank'}</span><strong>${number(Math.exp(f.alpha[frame-1][i]))}</strong></div>`).join('')+`<div class="calc-row"><span>前驱概率相加</span><strong>${number(Math.exp(sum))}</strong></div><div class="calc-row"><span>× 本步 p${frame+1}(${E.symbols[k]})</span><strong>${number(probs[frame][k])}</strong></div><div class="calc-row total"><span>α${frame+1}(${s+1})</span><strong>${number(value)}</strong></div>`;
+    }
+    $('endSum').textContent=frame<T-1?`目前只展示前 ${frame+1} 步的前向概率，还不是完整文本的概率。推进到最后一步，再把合法终点相加。`:S>1?`最后可以停在末尾标签或末尾 blank：P(${name(target)} | X) = α${T}(${S-1}) + α${T}(${S}) = ${number(Math.exp(f.alpha[T-1][S-2]))} + ${number(Math.exp(f.alpha[T-1][S-1]))} = ${number(Math.exp(f.logp))}，与路径枚举之和一致。`:`空目标只允许全 blank 路径：P(空文本 | X) = α${T}(1) = ${number(Math.exp(f.logp))}。`;
+  }
+  function trainingView(){
+    $('lossValue').textContent=lossText(-f.logp);$('lossNote').textContent=`目标“${name(target)}”的总概率 ${number(Math.exp(f.logp))}。${Number.isFinite(f.logp)?'概率越大，负对数损失越小。':'没有有效路径，不能通过改变概率来补救长度不足。'}`;
+    $('trainOne').disabled=$('trainTen').disabled=!f.gradient;$('undoTraining').disabled=!trainingBackup;$('trainCount').textContent=`${updates} 次更新`;
+    const finite=history.filter(Number.isFinite),max=Math.max(.1,...finite)*1.08;
+    const points=history.map((v,i)=>`${40+320*i/Math.max(1,history.length-1)},${139-Math.min(max,v)/max*118}`).join(' ');
+    $('lossChart').innerHTML=`<path d="M40 15V139H366" fill="none" stroke="#d5ddd0"/><text x="9" y="24" fill="#738075" font-size="9">${max.toFixed(1)}</text><text x="25" y="142" fill="#738075" font-size="9">0</text><text x="40" y="158" fill="#738075" font-size="9">更新 0</text><text x="365" y="158" text-anchor="end" fill="#738075" font-size="9">${updates} 次</text>${finite.length?`<polyline points="${points}" fill="none" stroke="#315c4b" stroke-width="2.5"/><circle cx="${40+320*(history.length-1)/Math.max(1,history.length-1)}" cy="${139-finite.at(-1)/max*118}" r="3.5" fill="#c56c43"/>`:'<text x="200" y="83" text-anchor="middle" font-size="13" fill="#956132">无有效路径，损失为 ∞</text>'}`;
+    $('gradientDetail').innerHTML=f.gradient?`<b>第 ${frame+1} 步：训练不是给它指定唯一标签</b><p>γ = 给定正确文本后，各标签在本步的占用后验。梯度为 p − γ；负梯度会推高该标签的 logit。</p>`+probs[frame].map((p,k)=>`<div class="calc-row"><span>${k===0?'blank':E.symbols[k]} · p=${p.toFixed(3)} · γ=${f.gamma[frame][k].toFixed(3)}</span><strong>梯度 ${f.gradient[frame][k]>=0?'+':''}${f.gradient[frame][k].toFixed(3)}</strong></div>`).join(''):'<p>目标长度不足：无法计算有效的学习方向。请先增加时间步。</p>';
+    const before=trainingBackup||probs;
+    $('beforeAfter').style.setProperty('--steps',probs.length);
+    $('beforeAfter').innerHTML=`<div class="before-after-row"><span>时间列</span>${probs.map((_,t)=>`<button class="time-column ${t===frame?'active':''}" data-t="${t}">t${t+1}</button>`).join('')}</div>`+['学习前','现在'].map((title,i)=>{const p=i===0?before:probs;return `<div class="before-after-row"><span>${title}</span>${p.map(row=>`<div class="stack-bar" aria-label="blank ${row[0].toFixed(4)}，开 ${row[1].toFixed(4)}，灯 ${row[2].toFixed(4)}">${row.map((v,k)=>`<i style="width:${v*100}%;background:${colors[k]}" title="${E.symbols[k]} ${v.toFixed(4)}"></i>`).join('')}</div>`).join('')}</div>`;}).join('')+probs[frame].map((p,k)=>`<div class="calc-row"><span>t${frame+1} · ${k===0?'blank':E.symbols[k]}</span><strong>${before[frame][k].toFixed(4)} → ${p.toFixed(4)} <span style="color:${p>=before[frame][k]?'#315c4b':'#c56c43'}">(${p>=before[frame][k]?'+':''}${(p-before[frame][k]).toFixed(4)})</span></strong></div>`).join('');
+    $('trainingChangeNote').textContent=updates?`老师答案仍然是“${name(target)}”，没有变；${updates} 次学习真正改变了网络概率。灰=blank、绿=开、橙=灯。学习前粗读“${name(E.collapse(E.greedy(before)).output)}”，现在粗读“${name(E.collapse(E.greedy(probs)).output)}”。`:'还没有学习，前后完全相同。换老师答案只改评分标准；点“学习”后，这两行概率条才会不同。灰=blank、绿=开、橙=灯。';
+    const gp=E.greedy(probs),out=E.collapse(gp).output,best=all.ranked[0],g=all.groups.get(E.key(out)),same=E.key(out)===best.name;
+    $('greedyPath').innerHTML=gp.map(k=>token(k)).join('');$('greedyText').textContent=`折叠为“${name(out)}”；路径概率 ${number(E.pathProbability(probs,gp))}，这个文本的总概率 ${number(g.p)}。`;
+    $('exactText').textContent=name(best.output);$('exactNote').textContent=`${best.count} 条路径合计 ${number(best.p)}。${same?'本例与贪心结果相同，但这不是普遍保证。':'与贪心不同！单条最强路径 ≠ 总概率最高的文本。'}`;
+    $('textRanking').innerHTML=all.ranked.slice(0,6).map((g,i)=>`<div class="rank-row"><span>${name(g.output)}</span><span class="rank-track"><i style="width:${g.p/best.p*100}%;background:${i===0?'#c56c43':'#477862'}"></i></span><strong>${number(g.p)}</strong></div>`).join('');
+  }
+  function learn(n,automatic=false){
+    if(!automatic)stop();if(mode!=='training'||!f.gradient)return;if(!trainingBackup)trainingBackup=copy(probs);
+    for(let i=0;i<n;i++){probs=E.trainStep(probs,target,.7);history.push(-E.forward(probs,target).logp);updates++;}
+    pathCursor=0;recompute(false);note(`已更新网络 ${updates} 次。老师答案“${name(target)}”没变，网络概率、文本总概率与损失发生了变化；下方前后两行可直接比较。`);
+  }
+  function chooseCursor(n){
+    if(stage===2){pathCursor=Math.max(0,Math.min(valid?.count||0,Math.round(n)));selectedPath=Math.max(0,pathCursor-1);render();}
+    else chooseFrame(n);
+  }
+  function cursor(){return stage===2?pathCursor:frame;}
+  function cursorMax(){return stage===2?(valid?.count||0):probs.length-1;}
+  function changeMode(next){stop();mode=next;render();note(mode==='training'?'训练：老师提供整句答案，先评分；只有点“学习”才更新网络。':'识别：没有正确答案输入，也不更新网络。改候选检查只改变该候选的分数，不会指定最终识别文字。');}
+  function render(){
+    modeView();cursorView();
+    if(stage===0)probabilities();if(stage===1)collapseView();if(stage===2)pathView();if(stage===3)latticeView();if(stage===4)trainingView();
+  }
+  $('presetSelect').addEventListener('change',e=>preset(e.target.value));
+  $('targetSelect').addEventListener('change',e=>{stop();target=e.target.value?e.target.value.split(',').map(Number):[];selectedS=Math.min(1,E.expanded(target).length-1);selectedPath=0;pathCursor=0;recompute();note(mode==='training'?'已更换老师答案：只改变哪些路径算正确、目标总概率和损失。网络输出暂时保持原样，因为还没有点“学习”。':'已更换要检查的候选：它的对齐路径和分数变化，但全局文本排名不变，因为网络概率没有变化。');});
+  $('trainingMode').addEventListener('click',()=>changeMode('training'));$('recognitionMode').addEventListener('click',()=>changeMode('recognition'));
+  $('resetBtn').addEventListener('click',()=>preset($('presetSelect').value));
+  $('addFrame').addEventListener('click',()=>{stop();if(probs.length>=8)return;probs.push([.8,.1,.1]);raw.push(0);pathCursor=0;recompute();note('添加一个输出时间步，概率设为 blank=.8、开=.1、灯=.1。路径数量和分数重新计算；不代表真实声音被自动拉长。');});
+  $('removeFrame').addEventListener('click',()=>{stop();if(probs.length<=2)return;probs.pop();raw.pop();pathCursor=0;recompute();note('移除最后一个输出时间步。对齐是否可行、路径数量和分数重新计算。');});
+  $$('.stage-button').forEach(b=>b.addEventListener('click',()=>chooseStage(+b.dataset.stage)));
+  $('backStage').addEventListener('click',()=>chooseStage(Math.max(0,stage-1)));$('nextStage').addEventListener('click',()=>chooseStage(stage===4?0:stage+1));
+  $('frameSlider').addEventListener('input',e=>{stop();chooseCursor(+e.target.value);});
+  $('prevFrame').addEventListener('click',()=>{stop();chooseCursor(cursor()-1);});$('nextFrame').addEventListener('click',()=>{stop();chooseCursor(cursor()+1);});
+  $('runBtn').addEventListener('click',()=>{
+    if(timer){stop();return;}if($('runBtn').disabled)return;
+    if(stage===4)autoRemaining=10;else if(cursor()===cursorMax())chooseCursor(0);
+    $('runBtn').textContent=stage===4?'Ⅱ 暂停学习':'Ⅱ 暂停演示';
+    timer=setInterval(()=>{if(stage===4){learn(1,true);if(--autoRemaining<=0)stop();}else{chooseCursor(cursor()+1);if(cursor()>=cursorMax())stop();}},750);
+  });
+  $('probGrid').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b){stop();selectedK=+b.dataset.k;chooseFrame(+b.dataset.t);}});
+  $('probSlider').addEventListener('input',e=>{stop();probs[frame]=E.setProbability(probs[frame],selectedK,+e.target.value/100);pathCursor=0;recompute();note(`手动修改了第 ${frame+1} 步的网络概率；不是更换答案，也不是梯度学习。跟随网络的路径、文本评分与损失同步重算。`);});
+  $('rawPath').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b){stop();followGreedy=false;frame=+b.dataset.t;raw[frame]=(raw[frame]+1)%3;render();note('这是手动改的一条路径，网络概率没有变化。它只是折叠规则的实验，不是模型识别结果。');}});
+  $('useGreedy').addEventListener('click',()=>{followGreedy=true;raw=E.greedy(probs);frame=probs.length-1;stop();render();});
+  $('repeatPath').addEventListener('click',()=>{stop();followGreedy=false;if(probs.length<3){probs.push([.8,.1,.1]);}raw=Array(probs.length).fill(0);raw[0]=1;raw[2]=1;frame=probs.length-1;recompute();note('现在手动实验“开 · blank · 开”。这条路径折叠为两个“开”，不是把老师答案写进模型输出。');});
+  $('pathList').addEventListener('click',e=>{const b=e.target.closest('[data-path]');if(b){stop();selectedPath=+b.dataset.path;render();}});
+  $('morePaths').addEventListener('click',()=>{stop();selectedPath=Math.min((valid?.count||1)-1,(Math.floor(selectedPath/12)+1)*12);render();});
+  $('beforeAfter').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b){stop();chooseFrame(+b.dataset.t);}});
+  function cellEvent(e){const b=e.target.closest('[data-s]');if(b){stop();selectedS=+b.dataset.s;chooseFrame(+b.dataset.t);}}
+  $('lattice').addEventListener('click',cellEvent);$('lattice').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();cellEvent(e);}});
+  $('trainOne').addEventListener('click',()=>learn(1));$('trainTen').addEventListener('click',()=>learn(10));
+  $('undoTraining').addEventListener('click',()=>{stop();if(trainingBackup){probs=copy(trainingBackup);recompute();note('已撤销本轮概率更新；老师答案保持不变。');}});
+  $('trapBtn').addEventListener('click',()=>{changeMode('recognition');preset('trap');chooseStage(4);});
+  $('repeatChallenge').addEventListener('click',()=>{changeMode('training');preset('impossible');chooseStage(2);});
+  $('sumChallenge').addEventListener('click',()=>{changeMode('training');preset('uniform');chooseStage(2);});
+  $('decodeChallenge').addEventListener('click',()=>{changeMode('recognition');preset('trap');chooseStage(4);});
+  $('presentBtn').addEventListener('click',async()=>{const on=!document.body.classList.contains('presenting');document.body.classList.toggle('presenting',on);$('presentBtn').textContent=on?'⛶ 退出投屏':'⛶ 课堂投屏';try{if(on&&!document.fullscreenElement)await document.documentElement.requestFullscreen();else if(!on&&document.fullscreenElement)await document.exitFullscreen();}catch(_){}});
+  document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){document.body.classList.remove('presenting');$('presentBtn').textContent='⛶ 课堂投屏';}});
+  window.addEventListener('pagehide',stop);
+  preset('normal');chooseStage(0);
+})();
+</script>
+</body></html>
