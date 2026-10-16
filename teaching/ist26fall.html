@@ -295,6 +295,10 @@
       background: #fbfafe;
     }
 
+    tbody tr[id] {
+      scroll-margin-top: 96px;
+    }
+
     .holiday {
       background: var(--warning-bg);
     }
@@ -599,11 +603,14 @@
               </td>
               <td>-</td>
             </tr>
-            <tr>
+            <tr id="lecture-6">
               <td><strong>8</strong></td>
               <td>2026.10.16</td>
               <td>Speaker Modeling</td>
-              <td>-</td>
+              <td>
+                <a class="badge link" href="./demos/gmm-ubm-demo.html" title="UBM training, MAP adaptation, and likelihood-ratio scoring">Demo (GMM–UBM)</a>
+                <a class="badge link" href="./demos/speaker-margin-demo.html" title="Softmax, A-Softmax, AM-Softmax, and AAM-Softmax">Demo (Softmax / Margin)</a>
+              </td>
               <td>-</td>
             </tr>
             <tr>
